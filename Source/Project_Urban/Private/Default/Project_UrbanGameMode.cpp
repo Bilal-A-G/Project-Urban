@@ -1,7 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "Project_UrbanGameMode.h"
-#include "Project_UrbanCharacter.h"
+#include "Project_Urban/Public/Default/Project_UrbanGameMode.h"
 #include "UObject/ConstructorHelpers.h"
 
 AProject_UrbanGameMode::AProject_UrbanGameMode()

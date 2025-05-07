@@ -2,6 +2,7 @@
 
 #include "Components/LineBatchComponent.h"
 #include "Editor.h"
+#include "ProceduralGeneration/UGenerationModel.h"
 
 void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPosition, int cellSize, float lineThickness)
 {
@@ -19,11 +20,11 @@ void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPositio
 		return;
 	
 	lineBatcher->Flush();
-	for (int x = -gridDimensions.X; x < gridDimensions.X + 1; x++)
+	for (int x = -this->gridDimensions.X; x < this->gridDimensions.X + 1; x++)
 	{
-		for (int y = -gridDimensions.Y; y < gridDimensions.Y + 1; y++)
+		for (int y = -this->gridDimensions.Y; y < this->gridDimensions.Y + 1; y++)
 		{
-			for (int z = 0; z < gridDimensions.Z + 1; z++)
+			for (int z = 0; z < this->gridDimensions.Z + 1; z++)
 			{
 				FVector offset = FVector(x, y, z) * cellSize * 2;
 				lineBatcher->DrawBox(centerPosition + offset, FVector(cellSize, cellSize, cellSize),
@@ -36,6 +37,12 @@ void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPositio
 	{
 		client->Invalidate();
 	}
+}
+
+void UProceduralGenerationCore::Init(FVector gridSize)
+{
+	this->gridDimensions = gridSize;
+	this->model = NewObject<UGenerationModel>();
 }
 
 void UProceduralGenerationCore::ClearDebugGizmos()

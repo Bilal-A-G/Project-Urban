@@ -4,6 +4,8 @@
 #include "UObject/Object.h"
 #include "ProceduralGenerationCore.generated.h"
 
+class UGenerationModel;
+
 /**
  * This class handles rules based procedural generation tasks,
  * Ie Wave Function Collapse style generation
@@ -17,8 +19,12 @@ public:
 	void DrawGrid(FVector gridSize, FVector centerPosition, int cellSize, float lineThickness);
 
 	UFUNCTION(BlueprintCallable)
+	void Init(FVector gridSize);
+	
+	UFUNCTION(BlueprintCallable)
 	void ClearDebugGizmos();
 private:
 	FVector gridDimensions;
 	int cellDimension;
+	UGenerationModel* model;
 };

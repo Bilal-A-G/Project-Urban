@@ -19,7 +19,7 @@ public:
 	void DrawGrid(FVector gridSize, FVector centerPosition, int cellSize, float lineThickness);
 
 	UFUNCTION(BlueprintCallable)
-	void Init(FVector gridSize);
+	void Generate();
 	
 	UFUNCTION(BlueprintCallable)
 	void ClearDebugGizmos();

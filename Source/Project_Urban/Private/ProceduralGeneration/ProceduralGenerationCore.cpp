@@ -39,10 +39,12 @@ void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPositio
 	}
 }
 
-void UProceduralGenerationCore::Init(FVector gridSize)
+void UProceduralGenerationCore::Generate()
 {
-	this->gridDimensions = gridSize;
-	this->model = NewObject<UGenerationModel>();
+	if(this->model == nullptr)
+		this->model = NewObject<UGenerationModel>();
+	
+
 }
 
 void UProceduralGenerationCore::ClearDebugGizmos()

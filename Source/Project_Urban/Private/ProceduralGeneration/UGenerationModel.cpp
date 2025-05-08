@@ -17,6 +17,4 @@ void UGenerationModel::Init(FVector gridSize, TArray<FLabel*> allPossibleLabels)
 			}
 		}
 	}
-	
-	UE_LOG(LogTemp, Warning, TEXT("Hello"))
 }

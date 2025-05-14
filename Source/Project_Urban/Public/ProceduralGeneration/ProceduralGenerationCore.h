@@ -4,6 +4,7 @@
 #include "UObject/Object.h"
 #include "ProceduralGenerationCore.generated.h"
 
+class UTileEntryDTO;
 class UGenerationModel;
 
 /**
@@ -19,7 +20,7 @@ public:
 	void DrawGrid(FVector gridSize, FVector centerPosition, int cellSize, float lineThickness);
 
 	UFUNCTION(BlueprintCallable)
-	void Generate();
+	void Generate(TArray<UTileEntryDTO*> tiles);
 	
 	UFUNCTION(BlueprintCallable)
 	void ClearDebugGizmos();

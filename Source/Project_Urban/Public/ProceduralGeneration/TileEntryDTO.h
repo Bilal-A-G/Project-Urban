@@ -18,14 +18,17 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FVector rotation;
 	UPROPERTY(BlueprintReadWrite)
-	TArray<FString> upAdjacencies;
+	FVector scale;
+	
 	UPROPERTY(BlueprintReadWrite)
-	TArray<FString> downAdjacencies;
+	TArray<int> upAdjacencies;
 	UPROPERTY(BlueprintReadWrite)
-	TArray<FString> leftAdjacencies;
+	TArray<int> downAdjacencies;
 	UPROPERTY(BlueprintReadWrite)
-	TArray<FString> rightAdjacencies;
+	TArray<int> leftAdjacencies;
+	UPROPERTY(BlueprintReadWrite)
+	TArray<int> rightAdjacencies;
 
 	UPROPERTY(BlueprintReadWrite)
-	TArray<FString> allKnownTiles;
+	TArray<int> allKnownTiles;
 };

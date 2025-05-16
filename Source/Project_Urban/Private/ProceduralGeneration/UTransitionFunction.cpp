@@ -1,7 +1,7 @@
-﻿#include "ProceduralGeneration/FTransitionFunction.h"
+﻿#include "ProceduralGeneration/UTransitionFunction.h"
 #include "ProceduralGeneration/FGenerationRuleset.h"
 
-bool FTransitionFunction::CheckConsistency(FLabel* current, FLabel* other, PUrban::Adjacency adjacency)
+bool UTransitionFunction::CheckConsistency(FLabel current, FLabel other, PUrban::Adjacency adjacency)
 {
 	FGenerationRuleset* currentRuleset = nullptr;
 	FGenerationRuleset* otherRuleset = nullptr;
@@ -22,7 +22,7 @@ bool FTransitionFunction::CheckConsistency(FLabel* current, FLabel* other, PUrba
 		otherRuleset->Adjacencies[PUrban::Opposite(adjacency)].Contains(current);
 }
 
-void FTransitionFunction::RemoveInconsistentLabels(FLabel* current, TArray<FLabel*>& array, PUrban::Adjacency adjacency)
+void UTransitionFunction::RemoveInconsistentLabels(FLabel current, TArray<FLabel>& array, PUrban::Adjacency adjacency)
 {
 	for (int i = 0; i < array.Num(); i++)
 	{

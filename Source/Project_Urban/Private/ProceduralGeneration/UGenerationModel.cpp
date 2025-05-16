@@ -1,20 +1,76 @@
 ﻿#include "ProceduralGeneration/UGenerationModel.h"
+
+#include "Engine/StaticMeshActor.h"
+#include "ProceduralGeneration/FLabel.h"
 #include "ProceduralGeneration/FModelCell.h"
 
-void UGenerationModel::Init(FVector gridSize, TArray<FLabel*> allPossibleLabels)
+void UGenerationModel::Init(FVector gridSize, int cellSize, TArray<FLabel> allPossibleLabels, UWorld* world)
 {
-	grid.SetNum(gridSize.X);
+	DestroyAllSpawnedActors(world);
+	_grid.Empty();
+	
+	_grid.SetNum(gridSize.X);
 
 	for (int x = 0; x < gridSize.X; x++)
 	{
-		grid[x].SetNum(gridSize.Y);
+		_grid[x].SetNum(gridSize.Y);
 		for (int y = 0; y < gridSize.Y; y++)
 		{
-			grid[x][y].SetNum(gridSize.Z);
+			_grid[x][y].SetNum(gridSize.Z);
 			for (int z = 0; z < gridSize.Z; z++)
 			{
-				grid[x][y][z] = new FModelCell(allPossibleLabels);
+				_grid[x][y][z] = new FModelCell(allPossibleLabels);
 			}
 		}
 	}
+
+	this->_gridSize = gridSize;
+	this->_cellSize = cellSize;
+}
+
+void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
+{
+	FModelCell* modelCell = _grid[tileIndex.X][tileIndex.Y][tileIndex.Z];
+	TArray<FLabel> candidateLabels = modelCell->CandidateLabels;
+	FLabel chosenLabel = candidateLabels[rand() % candidateLabels.Num()];
+	candidateLabels.Empty();
+	modelCell->CandidateLabels.Add(chosenLabel);
+
+	if (world == nullptr)
+		return;
+
+	FVector spawnLocation = tileIndex;
+	FTransform transform = FTransform(chosenLabel.Rotation, spawnLocation, chosenLabel.Scale);
+	
+	AStaticMeshActor* levelMeshActor =
+		world->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), transform);
+
+	if(levelMeshActor == nullptr)
+		return;
+
+	UStaticMeshComponent* meshComponent = levelMeshActor->GetStaticMeshComponent();
+	meshComponent->SetStaticMesh(chosenLabel.Mesh);
+	meshComponent->SetMobility(EComponentMobility::Static);
+	meshComponent->SetSimulatePhysics(false);
+
+	levelMeshActor->SetMobility(EComponentMobility::Static);
+	UE_LOG(LogTemp, Warning, TEXT("Successfully spawned a static mesh actor! "
+						   "at (%f, %f, %f)"), spawnLocation.X, spawnLocation.Y, spawnLocation.Z)
+	_spawnedActors.Add(levelMeshActor);
+}
+
+void UGenerationModel::DestroyAllSpawnedActors(UWorld* world)
+{
+	if(world == nullptr)
+		return;
+		
+	for(int i = 0; i < _spawnedActors.Num(); i++)
+	{
+		if(!_spawnedActors[i]->IsValidLowLevel())
+			continue;
+		
+		world->DestroyActor(_spawnedActors[i]);
+	}
+
+	_spawnedActors.Empty();
 }

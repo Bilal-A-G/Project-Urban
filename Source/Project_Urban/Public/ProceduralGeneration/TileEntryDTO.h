@@ -18,7 +18,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FVector rotation;
 	UPROPERTY(BlueprintReadWrite)
-	FVector scale;
+	FVector scale = FVector(1.0f, 1.0f, 1.0f);
 	
 	UPROPERTY(BlueprintReadWrite)
 	TArray<int> upAdjacencies;

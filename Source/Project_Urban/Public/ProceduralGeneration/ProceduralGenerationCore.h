@@ -4,6 +4,7 @@
 #include "UObject/Object.h"
 #include "ProceduralGenerationCore.generated.h"
 
+class UTransitionFunction;
 class UTileEntryDTO;
 class UGenerationModel;
 
@@ -27,5 +28,8 @@ public:
 private:
 	FVector gridDimensions;
 	int cellDimension;
+	UPROPERTY()
 	UGenerationModel* model;
+	UPROPERTY()
+	UTransitionFunction* transitionFunction;
 };

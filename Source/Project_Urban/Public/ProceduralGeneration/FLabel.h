@@ -22,6 +22,11 @@ public:
 		this->Rotation = FQuat::Identity;
 		this->Scale = FVector3d::Zero();
 	}
+	
+	bool operator==(const FLabel& Label) const
+	{
+		return Label.Mesh == this->Mesh && Label.Rotation == this->Rotation && Label.Scale == this->Scale;
+	}
 public:
 	UPROPERTY()
 	UStaticMesh* Mesh;

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "FLabel.h"
 #include "PUrbanUtils.h"
 #include "FGenerationRuleset.generated.h"
 
@@ -9,6 +10,6 @@ struct FGenerationRuleset
 {
 	GENERATED_BODY()
 public:
-	FLabel* Current;
-	TMap<PUrban::Adjacency, TArray<FLabel*>> Adjacencies;
+	FLabel Current;
+	TMap<PUrban::Adjacency, TArray<FLabel>> Adjacencies;
 };

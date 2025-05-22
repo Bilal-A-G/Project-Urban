@@ -10,6 +10,19 @@ class PROJECT_URBAN_API UTileEntryDTO : public UObject
 	GENERATED_BODY()
 public:
 	UTileEntryDTO(){}
+	UFUNCTION(BlueprintCallable)
+	void Reset()
+	{
+		name = "";
+		mesh = nullptr;
+
+		upAdjacencies.Empty();
+		downAdjacencies.Empty();
+		leftAdjacencies.Empty();
+		rightAdjacencies.Empty();
+
+		allKnownTiles.Empty();
+	}
 public:
 	UPROPERTY(BlueprintReadWrite)
 	FString name;

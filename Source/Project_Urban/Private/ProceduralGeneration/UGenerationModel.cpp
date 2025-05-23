@@ -60,6 +60,7 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 
 void UGenerationModel::BeginDestroy()
 {
+	Super::BeginDestroy();
 	for(int i = 0; i < _spawnedActors.Num(); i++)
 	{
 		if(!_spawnedActors[i]->IsValidLowLevel())

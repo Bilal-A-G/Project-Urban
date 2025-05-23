@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "EAdjacency.h"
+#include "FAdjacencyWrapper.h"
 #include "UGenerationRuleset.generated.h"
 
 class ULabel;
@@ -15,15 +15,23 @@ public:
 	bool CheckConsistency(const UGenerationRuleset* other, EAdjacency adjacency) const;
 	//Modifies the array to conform to the supplied current ruleset at the adjacency provided
 	static void RemoveInconsistentLabels(const UGenerationRuleset* current, TArray<UGenerationRuleset*>& array, EAdjacency adjacency);
-
+	//Get a read only copy of our adjacency list
+	UFUNCTION(BlueprintCallable)
+	const TArray<ULabel*>& GetAdjacencyValuesFromKey(EAdjacency adjacency) const;
+	//Write to a adjacency list at an index
+	UFUNCTION(BlueprintCallable)
+	void UpdateAdjacencyValue(EAdjacency adjacency, int index, ULabel* label);
+	
 	//Each ruleset must have a unique label tied to it
 	bool operator==(const UGenerationRuleset& Other) const
 	{
 		return Current == Other.Current;
 	}
 public:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	ULabel* Current;
-	//We're just raw dogging this, if we get crashes this is the prime suspect
-	TMap<EAdjacency, TArray<ULabel*>> Adjacencies;
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FAdjacencyWrapper> Adjacencies;
+	UPROPERTY()
+	TArray<ULabel*> NullList = TArray<ULabel*>{nullptr};
 };

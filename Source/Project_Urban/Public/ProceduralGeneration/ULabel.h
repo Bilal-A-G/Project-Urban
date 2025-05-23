@@ -22,8 +22,10 @@ public:
 		return Label.Mesh == this->Mesh && Label.Rotation == this->Rotation && Label.Scale == this->Scale;
 	}
 public:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	UStaticMesh* Mesh;
+	UPROPERTY(BlueprintReadWrite)
 	FQuat Rotation;
-	FVector3d Scale;
+	UPROPERTY(BlueprintReadWrite)
+	FVector Scale;
 };

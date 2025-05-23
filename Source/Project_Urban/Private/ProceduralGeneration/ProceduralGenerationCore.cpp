@@ -2,11 +2,9 @@
 
 #include "Components/LineBatchComponent.h"
 #include "Editor.h"
-#include "ProceduralGeneration/FGenerationRuleset.h"
-#include "ProceduralGeneration/FLabel.h"
-#include "ProceduralGeneration/TileEntryDTO.h"
+#include "ProceduralGeneration\UGenerationRuleset.h"
+#include "ProceduralGeneration\UTileEntryDTO.h"
 #include "ProceduralGeneration/UGenerationModel.h"
-#include "ProceduralGeneration/UTransitionFunction.h"
 
 void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPosition, int cellSize, float lineThickness)
 {
@@ -43,63 +41,17 @@ void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPositio
 	}
 }
 
-TArray<FLabel> GetAdjacencyArray(TArray<FLabel>& allLabels, TArray<int>& adjacencies)
-{
-	TArray<FLabel> directionalAdjacencies;
-	for (int v = 0; v < adjacencies.Num(); v++)
-	{
-		int currentAdjacency = adjacencies[v];
-		if (currentAdjacency - 1 < 0)
-			continue;
-		
-		directionalAdjacencies.Add(allLabels[currentAdjacency - 1]);
-	}
-
-	return directionalAdjacencies;
-}
-
 void UProceduralGenerationCore::Generate(TArray<UTileEntryDTO*> tiles)
 {
-	if(this->model == nullptr)
-		this->model = NewObject<UGenerationModel>();
-	if(this->transitionFunction == nullptr)
-		this->transitionFunction = NewObject<UTransitionFunction>();
-
-	TArray<FLabel> allLabels;
-	TArray<FGenerationRuleset*> allRulesets;
+	this->model = NewObject<UGenerationModel>(this);
+	TArray<UGenerationRuleset*> allRuleSets;
 	
-	for (int i = 0; i < tiles.Num(); i++)
+	for (const UTileEntryDTO* tileEntry : tiles)
 	{
-		UTileEntryDTO* tileEntry = tiles[i];
-		UE_LOG(LogTemp, Warning, TEXT("Got tile with (%f, %f, %f))"),
-			tileEntry->scale.X, tileEntry->scale.Y, tileEntry->scale.Z)
-		
-		FLabel newLabel = FLabel(tileEntry->mesh,
-			FQuat::MakeFromEuler(tileEntry->rotation), tileEntry->scale);
-		allLabels.Add(newLabel);
-	}
-
-	for (int i = 0; i < tiles.Num(); i++)
-	{
-		FGenerationRuleset* ruleset = new FGenerationRuleset();
-		ruleset->Current = allLabels[i];
-		TArray<FLabel> upAdjacencies = GetAdjacencyArray(allLabels, tiles[i]->upAdjacencies);
-		TArray<FLabel> downAdjacencies = GetAdjacencyArray(allLabels, tiles[i]->downAdjacencies);
-		TArray<FLabel> leftAdjacencies = GetAdjacencyArray(allLabels, tiles[i]->leftAdjacencies);
-		TArray<FLabel> rightAdjacencies = GetAdjacencyArray(allLabels, tiles[i]->rightAdjacencies);
-
-		UE_LOG(LogTemp, Warning, TEXT("Tile %s has %i up, %i down, %i left, %i right"), *tiles[i]->name,
-			upAdjacencies.Num(), downAdjacencies.Num(), leftAdjacencies.Num(), rightAdjacencies.Num())
-
-		ruleset->Adjacencies.Add(PUrban::Adjacency::UP, upAdjacencies);
-		ruleset->Adjacencies.Add(PUrban::Adjacency::DOWN, downAdjacencies);
-		ruleset->Adjacencies.Add(PUrban::Adjacency::LEFT, leftAdjacencies);
-		ruleset->Adjacencies.Add(PUrban::Adjacency::RIGHT, rightAdjacencies);
-		allRulesets.Add(ruleset);
+		allRuleSets.Add(tileEntry->tileRuleset);
 	}
 	
-	transitionFunction->RuleSets = allRulesets;
-	model->Init(FVector(2, 2, 1), 100, allLabels, GetWorld());
+	model->Initialize(FVector(2, 2, 1), 100, allRuleSets);
 	model->CollapseTile(FVector(0, 0, 0), GetWorld());
 }
 

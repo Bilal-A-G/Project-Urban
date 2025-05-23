@@ -1,14 +1,12 @@
 ﻿#include "ProceduralGeneration/UGenerationModel.h"
 
 #include "Engine/StaticMeshActor.h"
-#include "ProceduralGeneration/FLabel.h"
 #include "ProceduralGeneration/FModelCell.h"
+#include "ProceduralGeneration/UGenerationRuleset.h"
+#include "ProceduralGeneration/ULabel.h"
 
-void UGenerationModel::Init(FVector gridSize, int cellSize, TArray<FLabel> allPossibleLabels, UWorld* world)
+void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenerationRuleset*>& allPossibleRuleSets)
 {
-	DestroyAllSpawnedActors(world);
-	_grid.Empty();
-	
 	_grid.SetNum(gridSize.X);
 
 	for (int x = 0; x < gridSize.X; x++)
@@ -19,7 +17,7 @@ void UGenerationModel::Init(FVector gridSize, int cellSize, TArray<FLabel> allPo
 			_grid[x][y].SetNum(gridSize.Z);
 			for (int z = 0; z < gridSize.Z; z++)
 			{
-				_grid[x][y][z] = new FModelCell(allPossibleLabels);
+				_grid[x][y].Add(FModelCell(allPossibleRuleSets));
 			}
 		}
 	}
@@ -30,17 +28,18 @@ void UGenerationModel::Init(FVector gridSize, int cellSize, TArray<FLabel> allPo
 
 void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 {
-	FModelCell* modelCell = _grid[tileIndex.X][tileIndex.Y][tileIndex.Z];
-	TArray<FLabel> candidateLabels = modelCell->CandidateLabels;
-	FLabel chosenLabel = candidateLabels[rand() % candidateLabels.Num()];
-	candidateLabels.Empty();
-	modelCell->CandidateLabels.Add(chosenLabel);
+	FModelCell modelCell = _grid[tileIndex.X][tileIndex.Y][tileIndex.Z];
+	TArray<UGenerationRuleset*>& candidateRuleSets = modelCell.CandidateRuleSets;
+	UGenerationRuleset* chosenRuleset = candidateRuleSets[rand() % candidateRuleSets.Num()];
+	candidateRuleSets.Empty();
+	candidateRuleSets.Add(chosenRuleset);
 
 	if (world == nullptr)
 		return;
 
 	FVector spawnLocation = tileIndex;
-	FTransform transform = FTransform(chosenLabel.Rotation, spawnLocation, chosenLabel.Scale);
+	ULabel* chosenLabel = chosenRuleset->Current;
+	FTransform transform = FTransform(chosenLabel->Rotation, spawnLocation, chosenLabel->Scale);
 	
 	AStaticMeshActor* levelMeshActor =
 		world->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), transform);
@@ -49,7 +48,7 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 		return;
 
 	UStaticMeshComponent* meshComponent = levelMeshActor->GetStaticMeshComponent();
-	meshComponent->SetStaticMesh(chosenLabel.Mesh);
+	meshComponent->SetStaticMesh(chosenLabel->Mesh);
 	meshComponent->SetMobility(EComponentMobility::Static);
 	meshComponent->SetSimulatePhysics(false);
 
@@ -59,17 +58,13 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 	_spawnedActors.Add(levelMeshActor);
 }
 
-void UGenerationModel::DestroyAllSpawnedActors(UWorld* world)
+void UGenerationModel::BeginDestroy()
 {
-	if(world == nullptr)
-		return;
-		
 	for(int i = 0; i < _spawnedActors.Num(); i++)
 	{
 		if(!_spawnedActors[i]->IsValidLowLevel())
 			continue;
-		
-		world->DestroyActor(_spawnedActors[i]);
+		_spawnedActors[i]->Destroy();
 	}
 
 	_spawnedActors.Empty();

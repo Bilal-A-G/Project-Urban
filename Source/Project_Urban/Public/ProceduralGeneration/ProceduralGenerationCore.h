@@ -4,13 +4,11 @@
 #include "UObject/Object.h"
 #include "ProceduralGenerationCore.generated.h"
 
-class UTransitionFunction;
 class UTileEntryDTO;
 class UGenerationModel;
 
 /**
- * This class handles rules based procedural generation tasks,
- * Ie Wave Function Collapse style generation
+ * This class acts as a layer of abstraction between the BP and the C++ implementation of procedural generation tasks
  */
 UCLASS(Blueprintable)
 class PROJECT_URBAN_API UProceduralGenerationCore : public UObject
@@ -30,6 +28,4 @@ private:
 	int cellDimension;
 	UPROPERTY()
 	UGenerationModel* model;
-	UPROPERTY()
-	UTransitionFunction* transitionFunction;
 };

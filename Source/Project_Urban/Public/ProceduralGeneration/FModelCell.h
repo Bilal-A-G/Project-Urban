@@ -1,15 +1,18 @@
 ﻿#pragma once
-#include "FLabel.h"
 #include "FModelCell.generated.h"
 
+class UGenerationRuleset;
+
+//This represents a single cell in the model
 USTRUCT(Blueprintable)
 struct FModelCell
 {
 	GENERATED_BODY()
 public:
-	FModelCell(TArray<FLabel> allPossibleLabels) : CandidateLabels(allPossibleLabels)
-	{}
 	FModelCell(){}
+	FModelCell(TArray<UGenerationRuleset*>& allPossibleRuleSets) : CandidateRuleSets(allPossibleRuleSets)
+	{}
 public:
-	TArray<FLabel> CandidateLabels;
+	UPROPERTY()
+	TArray<UGenerationRuleset*> CandidateRuleSets;
 };

@@ -13,6 +13,8 @@ class PROJECT_URBAN_API UTileEntryDTO : public UObject
 {
 	GENERATED_BODY()
 public:
+	virtual void PostInitProperties() override;
+public:
 	UPROPERTY(BlueprintReadWrite)
 	FString name;
 	UPROPERTY(BlueprintReadWrite)

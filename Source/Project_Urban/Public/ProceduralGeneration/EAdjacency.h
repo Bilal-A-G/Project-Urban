@@ -3,13 +3,15 @@
 UENUM(BlueprintType)
 enum class EAdjacency : uint8
 {
-	INVALID,
 	UP,
 	DOWN,
 	LEFT,
 	RIGHT,
 	FORWARD,
-	BACKWARD
+	BACKWARD,
+	//Just here so we know how many valid entries are in here
+	LAST,
+	INVALID
 };
 
 namespace PUrban

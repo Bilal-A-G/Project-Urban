@@ -5,6 +5,7 @@
 #include "ProceduralGeneration\UGenerationRuleset.h"
 #include "ProceduralGeneration\UTileEntryDTO.h"
 #include "ProceduralGeneration/UGenerationModel.h"
+#include "ProceduralGeneration/ULabel.h"
 
 void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPosition, int cellSize, float lineThickness)
 {
@@ -48,11 +49,17 @@ void UProceduralGenerationCore::Generate(TArray<UTileEntryDTO*> tiles)
 	
 	for (const UTileEntryDTO* tileEntry : tiles)
 	{
+		const TArray<ULabel*> upAdjacencies = tileEntry->tileRuleset->GetAdjacencyValuesFromKey(EAdjacency::UP);
+		for (const ULabel* label : upAdjacencies)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Found %s adjacency in Up %s"),
+				*label->Mesh->GetName(), *tileEntry->name)
+		}
 		allRuleSets.Add(tileEntry->tileRuleset);
 	}
 	
 	model->Initialize(FVector(2, 2, 1), 100, allRuleSets);
-	model->CollapseTile(FVector(0, 0, 0), GetWorld());
+	//model->CollapseTile(FVector(0, 0, 0), GetWorld());
 }
 
 void UProceduralGenerationCore::ClearDebugGizmos()

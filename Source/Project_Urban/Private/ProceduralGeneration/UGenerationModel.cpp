@@ -30,7 +30,7 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 {
 	FModelCell modelCell = _grid[tileIndex.X][tileIndex.Y][tileIndex.Z];
 	TArray<UGenerationRuleset*>& candidateRuleSets = modelCell.CandidateRuleSets;
-	UGenerationRuleset* chosenRuleset = candidateRuleSets[rand() % candidateRuleSets.Num()];
+	UGenerationRuleset* chosenRuleset = candidateRuleSets[(rand()/RAND_MAX) * (candidateRuleSets.Num() - 1)];
 	candidateRuleSets.Empty();
 	candidateRuleSets.Add(chosenRuleset);
 

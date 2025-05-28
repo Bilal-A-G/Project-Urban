@@ -3,7 +3,7 @@
 void UGenerationRuleset::PostInitProperties()
 {
 	Super::PostInitProperties();
-	for (uint8 i = 0; i < static_cast<uint8>(EAdjacency::LAST) - 1; i++)
+	for (uint8 i = 0; i < static_cast<uint8>(EAdjacency::LAST) - 2; i++)
 	{
 		FAdjacencyWrapper wrapper = FAdjacencyWrapper();
 		wrapper.key = static_cast<EAdjacency>(i);

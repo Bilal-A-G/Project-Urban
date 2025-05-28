@@ -12,8 +12,6 @@ class UGenerationRuleset : public UObject
 	GENERATED_BODY()
 public:
 	virtual void PostInitProperties() override;
-	//Helper function, just tells us if this ruleset is inconsistent with the supplied ruleset at the adjacency
-	bool CheckConsistency(const UGenerationRuleset* other, EAdjacency adjacency) const;
 	//Modifies the array to conform to the supplied current ruleset at the adjacency provided
 	static void RemoveInconsistentLabels(const UGenerationRuleset* current, TArray<UGenerationRuleset*>& array, EAdjacency adjacency);
 	//Get a read only copy of our adjacency list, excluding any nullptrs, this does copy, but it's not too bad
@@ -28,6 +26,9 @@ public:
 	{
 		return Current == Other.Current;
 	}
+private:
+	//Helper function, just tells us if this ruleset is inconsistent with the supplied ruleset at the adjacency
+	bool CheckConsistency(const UGenerationRuleset* other, EAdjacency adjacency) const;
 public:
 	UPROPERTY(BlueprintReadWrite)
 	ULabel* Current;

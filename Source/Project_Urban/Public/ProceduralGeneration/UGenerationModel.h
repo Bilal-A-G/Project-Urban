@@ -13,8 +13,9 @@ class PROJECT_URBAN_API UGenerationModel : public UObject
 {
 	GENERATED_BODY()
 public:
-	void Initialize(FVector gridSize, int cellSize, TArray<UGenerationRuleset*>& allPossibleRuleSets);
+	void Initialize(FVector gridSize, int cellSize, TArray<UGenerationRuleset*> allPossibleRuleSets);
 	void CollapseTile(FVector tileIndex, UWorld* world);
+	void DestroySpawnedActors();
 	virtual void BeginDestroy() override;
 private:
 	TArray<TArray<TArray<FModelCell>>> _grid;

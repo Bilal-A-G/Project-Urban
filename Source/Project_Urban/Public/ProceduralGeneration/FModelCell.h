@@ -10,7 +10,7 @@ struct FModelCell
 	GENERATED_BODY()
 public:
 	FModelCell(){}
-	FModelCell(TArray<UGenerationRuleset*>& allPossibleRuleSets) : CandidateRuleSets(allPossibleRuleSets)
+	FModelCell(TArray<UGenerationRuleset*> allPossibleRuleSets) : CandidateRuleSets(allPossibleRuleSets)
 	{}
 public:
 	UPROPERTY()

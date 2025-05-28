@@ -44,22 +44,23 @@ void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPositio
 
 void UProceduralGenerationCore::Generate(TArray<UTileEntryDTO*> tiles)
 {
-	this->model = NewObject<UGenerationModel>(this);
-	TArray<UGenerationRuleset*> allRuleSets;
+	if(model != nullptr)
+	{
+		model->DestroySpawnedActors();
+	}
+	else
+	{
+		this->model = NewObject<UGenerationModel>(this);
+	}
+	TArray<UGenerationRuleset*> allRuleSets = TArray<UGenerationRuleset*>();
 	
 	for (const UTileEntryDTO* tileEntry : tiles)
 	{
-		const TArray<ULabel*> upAdjacencies = tileEntry->tileRuleset->GetAdjacencyValuesFromKey(EAdjacency::UP);
-		for (const ULabel* label : upAdjacencies)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Found %s adjacency in Up %s"),
-				*label->Mesh->GetName(), *tileEntry->name)
-		}
 		allRuleSets.Add(tileEntry->tileRuleset);
 	}
 	
-	model->Initialize(FVector(2, 2, 1), 100, allRuleSets);
-	//model->CollapseTile(FVector(0, 0, 0), GetWorld());
+	model->Initialize(FVector(3, 3, 1), 100, allRuleSets);
+	model->CollapseTile(FVector(0, 0, 0), GetWorld());
 }
 
 void UProceduralGenerationCore::ClearDebugGizmos()

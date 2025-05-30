@@ -33,12 +33,16 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 	UGenerationRuleset* chosenRuleset = candidateRuleSets[rand() % candidateRuleSets.Num()];
 	candidateRuleSets.Empty();
 	candidateRuleSets.Add(chosenRuleset);
+
+	//Have to reassign since we're modifying a copy, need to fix this
+	modelCell.CandidateRuleSets = candidateRuleSets;
+	_grid[tileIndex.X][tileIndex.Y][tileIndex.Z] = modelCell;
 	
 	if (world == nullptr)
 		return;
 	
-	FVector spawnLocation = tileIndex;
 	ULabel* chosenLabel = chosenRuleset->Current;
+	FVector spawnLocation = (tileIndex + _gridSize/2) * _cellSize;
 	FTransform transform = FTransform(chosenLabel->Rotation, spawnLocation, chosenLabel->Scale);
 	
 	AStaticMeshActor* levelMeshActor =
@@ -53,9 +57,45 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 	meshComponent->SetSimulatePhysics(false);
 	
 	levelMeshActor->SetMobility(EComponentMobility::Static);
-	UE_LOG(LogTemp, Warning, TEXT("Successfully spawned a static mesh actor! "
-						   "at (%f, %f, %f)"), spawnLocation.X, spawnLocation.Y, spawnLocation.Z)
+	UE_LOG(LogTemp, Warning, TEXT("Successfully spawned a static mesh actor, with mesh name %s"
+						   "at (%f, %f, %f)"), *chosenLabel->Mesh->GetName(),
+						   spawnLocation.X, spawnLocation.Y, spawnLocation.Z)
 	_spawnedActors.Add(levelMeshActor);
+
+	PropagateToNeighbours(tileIndex);
+}
+
+void UGenerationModel::PropagateToNeighbours(FVector tileIndex)
+{
+	UGenerationRuleset* rulesetAtIndex = _grid[tileIndex.X][tileIndex.Y][tileIndex.Z].CandidateRuleSets[0];
+	
+	for (int i = 0; i < static_cast<int>(EAdjacency::LAST); i++)
+	{
+		EAdjacency currentAdjacency = static_cast<EAdjacency>(i);
+		FString stringAdjacency = UEnum::GetValueAsString(currentAdjacency);
+
+		FVector adjacencyIndex = tileIndex + PUrban::ToVector(currentAdjacency);
+		if(adjacencyIndex.X >= _gridSize.X || adjacencyIndex.X < 0 ||
+			adjacencyIndex.Y >= _gridSize.Y || adjacencyIndex.Y < 0 ||
+			adjacencyIndex.Z >= _gridSize.Z || adjacencyIndex.Z < 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Invalid index at adjacency %s "
+								 "for cell at coordinates (%f, %f, %f)"),
+								 *stringAdjacency, tileIndex.X, tileIndex.Y, tileIndex.Z);
+			continue;
+		}
+		TArray<UGenerationRuleset*> rulesetsAtAdjacency =
+			_grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets;
+		UE_LOG(LogTemp, Warning, TEXT("Cell at index (%f, %f, %f) at adjacency %s currently contains %i candidates"),
+		adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z, *stringAdjacency, rulesetsAtAdjacency.Num());
+		//Modifying by ref
+		UGenerationRuleset::RemoveInconsistentLabels(rulesetAtIndex, rulesetsAtAdjacency, currentAdjacency);
+		//We can now reset the value once we have modified the array, we should probably figure out a way to avoid
+		//copying the array and reassigning it like this
+		UE_LOG(LogTemp, Warning, TEXT("Cell at index (%f, %f, %f) now contains %i candidates"),
+			adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z, rulesetsAtAdjacency.Num());
+		_grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets = rulesetsAtAdjacency;
+	}
 }
 
 void UGenerationModel::DestroySpawnedActors()
@@ -75,3 +115,4 @@ void UGenerationModel::BeginDestroy()
 	Super::BeginDestroy();
 	DestroySpawnedActors();
 }
+

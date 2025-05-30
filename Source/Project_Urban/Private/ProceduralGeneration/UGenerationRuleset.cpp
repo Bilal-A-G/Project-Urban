@@ -1,9 +1,11 @@
 ﻿#include "ProceduralGeneration/UGenerationRuleset.h"
 
+#include "ProceduralGeneration/ULabel.h"
+
 void UGenerationRuleset::PostInitProperties()
 {
 	Super::PostInitProperties();
-	for (uint8 i = 0; i < static_cast<uint8>(EAdjacency::LAST) - 2; i++)
+	for (uint8 i = 0; i < static_cast<uint8>(EAdjacency::LAST); i++)
 	{
 		FAdjacencyWrapper wrapper = FAdjacencyWrapper();
 		wrapper.key = static_cast<EAdjacency>(i);
@@ -16,6 +18,9 @@ bool UGenerationRuleset::CheckConsistency(const UGenerationRuleset* other, EAdja
 {
 	TArray<ULabel*> currentAdjacencyLabels = GetAdjacencyValuesFromKey(adjacency);
 	TArray<ULabel*> otherOppositeAdjacencyLabels = other->GetAdjacencyValuesFromKey(PUrban::Opposite(adjacency));
+
+	UE_LOG(LogTemp, Warning, TEXT("Current adjacencies = %i, other opposite adjacencies = %i %s"),
+		currentAdjacencyLabels.Num(), otherOppositeAdjacencyLabels.Num(), *Current->Mesh->GetName())
 	
 	return currentAdjacencyLabels.Contains(other->Current) &&
 		otherOppositeAdjacencyLabels.Contains(Current);
@@ -24,11 +29,15 @@ bool UGenerationRuleset::CheckConsistency(const UGenerationRuleset* other, EAdja
 void UGenerationRuleset::RemoveInconsistentLabels(const UGenerationRuleset* current, TArray<UGenerationRuleset*>& array,
 	EAdjacency adjacency)
 {
+	TArray<UGenerationRuleset*> consistentRulesets;
 	for (UGenerationRuleset* currentArrayRuleset: array)
 	{
 		if(!current->CheckConsistency(currentArrayRuleset, adjacency))
-			array.Remove(currentArrayRuleset);
+			continue;
+		consistentRulesets.Add(currentArrayRuleset);
 	}
+
+	array = consistentRulesets;
 }
 
 const TArray<ULabel*> UGenerationRuleset::GetAdjacencyValuesFromKey(EAdjacency adjacency) const

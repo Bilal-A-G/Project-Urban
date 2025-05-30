@@ -18,6 +18,10 @@ public:
 	void DestroySpawnedActors();
 	virtual void BeginDestroy() override;
 private:
+	//Only call after we have collapsed the tile at this index, the function assumes there's only 1
+	//candidate ruleset in that cell
+	void PropagateToNeighbours(FVector tileIndex);
+private:
 	TArray<TArray<TArray<FModelCell>>> _grid;
 	UPROPERTY()
 	TArray<AStaticMeshActor*> _spawnedActors;

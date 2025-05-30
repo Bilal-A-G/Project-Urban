@@ -36,4 +36,25 @@ namespace PUrban
 			return EAdjacency::INVALID;
 		}
 	}
+
+	static FVector ToVector(EAdjacency adjacency)
+	{
+		switch (adjacency) {
+		case EAdjacency::UP:
+			return FVector(0, 0, 1);
+		case EAdjacency::DOWN:
+			return FVector(0, 0, -1);
+		case EAdjacency::LEFT:
+			return FVector(-1, 0, 0);
+		case EAdjacency::RIGHT:
+			return FVector(1, 0, 0);
+		case EAdjacency::FORWARD:
+			return FVector(0, -1, 0);
+		case EAdjacency::BACKWARD:
+			return FVector(0, 1, 0);
+		default:
+			UE_LOG(LogTemp, Error, TEXT("Error, adjacency enum provided is invalid!"))
+			return FVector(0, 0, 0);
+		}
+	}
 }

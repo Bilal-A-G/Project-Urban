@@ -5,7 +5,6 @@
 #include "ProceduralGeneration\UGenerationRuleset.h"
 #include "ProceduralGeneration\UTileEntryDTO.h"
 #include "ProceduralGeneration/UGenerationModel.h"
-#include "ProceduralGeneration/ULabel.h"
 
 void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPosition, int cellSize, float lineThickness)
 {
@@ -48,10 +47,8 @@ void UProceduralGenerationCore::Generate(TArray<UTileEntryDTO*> tiles)
 	{
 		model->DestroySpawnedActors();
 	}
-	else
-	{
-		this->model = NewObject<UGenerationModel>(this);
-	}
+	this->model = NewObject<UGenerationModel>(this);
+	
 	TArray<UGenerationRuleset*> allRuleSets = TArray<UGenerationRuleset*>();
 	
 	for (const UTileEntryDTO* tileEntry : tiles)

@@ -42,7 +42,7 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 		return;
 	
 	ULabel* chosenLabel = chosenRuleset->Current;
-	FVector spawnLocation = (tileIndex + _gridSize/2) * _cellSize;
+	FVector spawnLocation = (tileIndex + (_gridSize - FVector(1, 1, 1))/2) * (_cellSize * 2);
 	FTransform transform = FTransform(chosenLabel->Rotation, spawnLocation, chosenLabel->Scale);
 	
 	AStaticMeshActor* levelMeshActor =
@@ -115,4 +115,3 @@ void UGenerationModel::BeginDestroy()
 	Super::BeginDestroy();
 	DestroySpawnedActors();
 }
-

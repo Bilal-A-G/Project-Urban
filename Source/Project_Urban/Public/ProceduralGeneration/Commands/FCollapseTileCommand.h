@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "FAbstractCommand.h"
 
+//Command to collapse a tile at a specific index
 struct FCollapseTileCommand : FAbstractCommand
 {
 public:

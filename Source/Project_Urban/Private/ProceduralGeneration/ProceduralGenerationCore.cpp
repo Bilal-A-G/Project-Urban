@@ -43,11 +43,10 @@ void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPositio
 
 void UProceduralGenerationCore::Generate(TArray<UTileEntryDTO*> tiles)
 {
-	if(model != nullptr)
+	if(model == nullptr)
 	{
-		model->DestroySpawnedActors();
+		this->model = NewObject<UGenerationModel>(this);
 	}
-	this->model = NewObject<UGenerationModel>(this);
 	
 	TArray<UGenerationRuleset*> allRuleSets = TArray<UGenerationRuleset*>();
 	
@@ -55,8 +54,9 @@ void UProceduralGenerationCore::Generate(TArray<UTileEntryDTO*> tiles)
 	{
 		allRuleSets.Add(tileEntry->tileRuleset);
 	}
-	
-	model->Initialize(FVector(3, 3, 1), 100, allRuleSets);
+
+	UE_LOG(LogTemp, Warning, TEXT("X grid size is %f"), this->gridDimensions.X);
+	model->Initialize(this->gridDimensions * 2 + FVector(1, 1, 1), this->cellDimension, allRuleSets);
 	model->CollapseTile(FVector(0, 0, 0), GetWorld());
 }
 

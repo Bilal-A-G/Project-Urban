@@ -7,6 +7,9 @@
 
 void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenerationRuleset*> allPossibleRuleSets)
 {
+	DestroySpawnedActors();
+	_grid.Empty();
+	
 	_grid.SetNum(gridSize.X);
 
 	for (int x = 0; x < gridSize.X; x++)
@@ -16,10 +19,15 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 		{
 			for (int z = 0; z < gridSize.Z; z++)
 			{
-				_grid[x][y].Add(FModelCell(allPossibleRuleSets));
+				FModelCell createdCell = FModelCell(allPossibleRuleSets);
+				UE_LOG(LogTemp, Warning, TEXT("Created new cell with candidates %i at index (%i, %i, %i)"),
+					createdCell.CandidateRuleSets.Num(), x, y, z);
+				_grid[x][y].Add(MoveTemp(createdCell));
 			}
 		}
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Cell at (0,0,0) has %i candidates"), _grid[0][0][0].CandidateRuleSets.Num());
 	
 	this->_gridSize = gridSize;
 	this->_cellSize = cellSize;
@@ -29,7 +37,12 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 {
 	FModelCell modelCell = _grid[(int)tileIndex.X][(int)tileIndex.Y][(int)tileIndex.Z];
 	TArray<UGenerationRuleset*> candidateRuleSets = modelCell.CandidateRuleSets;
-	
+	if(candidateRuleSets.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Error, no candidates found in ruleset "
+							  "in cell at (%f, %f, %f)"), tileIndex.X, tileIndex.Y, tileIndex.Z);
+		return;
+	}
 	UGenerationRuleset* chosenRuleset = candidateRuleSets[rand() % candidateRuleSets.Num()];
 	candidateRuleSets.Empty();
 	candidateRuleSets.Add(chosenRuleset);
@@ -61,8 +74,6 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 						   "at (%f, %f, %f)"), *chosenLabel->Mesh->GetName(),
 						   spawnLocation.X, spawnLocation.Y, spawnLocation.Z)
 	_spawnedActors.Add(levelMeshActor);
-
-	PropagateToNeighbours(tileIndex);
 }
 
 void UGenerationModel::PropagateToNeighbours(FVector tileIndex)

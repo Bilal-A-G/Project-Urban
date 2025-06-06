@@ -15,12 +15,11 @@ class PROJECT_URBAN_API UGenerationModel : public UObject
 public:
 	void Initialize(FVector gridSize, int cellSize, TArray<UGenerationRuleset*> allPossibleRuleSets);
 	void CollapseTile(FVector tileIndex, UWorld* world);
-	void DestroySpawnedActors();
-	virtual void BeginDestroy() override;
-private:
 	//Only call after we have collapsed the tile at this index, the function assumes there's only 1
 	//candidate ruleset in that cell
 	void PropagateToNeighbours(FVector tileIndex);
+	void DestroySpawnedActors();
+	virtual void BeginDestroy() override;
 private:
 	TArray<TArray<TArray<FModelCell>>> _grid;
 	UPROPERTY()

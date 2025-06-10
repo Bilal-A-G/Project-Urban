@@ -14,12 +14,15 @@ class PROJECT_URBAN_API UGenerationModel : public UObject
 	GENERATED_BODY()
 public:
 	void Initialize(FVector gridSize, int cellSize, TArray<UGenerationRuleset*> allPossibleRuleSets);
+	TArray<AStaticMeshActor*> GetPossibleTileVisualization(FVector visualScale, UWorld* world, FVector offset, float spacing);
 	void CollapseTile(FVector tileIndex, UWorld* world);
 	//Only call after we have collapsed the tile at this index, the function assumes there's only 1
 	//candidate ruleset in that cell
 	void PropagateToNeighbours(FVector tileIndex);
 	void DestroySpawnedActors();
 	virtual void BeginDestroy() override;
+private:
+	FVector TileIndexToCoordinates(FVector index);
 private:
 	TArray<TArray<TArray<FModelCell>>> _grid;
 	UPROPERTY()

@@ -41,6 +41,15 @@ void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPositio
 	}
 }
 
+TArray<AStaticMeshActor*> UProceduralGenerationCore::GetTilesVisualization(FVector visualScale,
+	FVector offset, float spacing)
+{
+	if(model == nullptr)
+		return TArray<AStaticMeshActor*>();
+
+	return model->GetPossibleTileVisualization(visualScale, GetWorld(), offset, spacing);
+}
+
 void UProceduralGenerationCore::Generate(TArray<UTileEntryDTO*> tiles)
 {
 	if(model == nullptr)

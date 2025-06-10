@@ -33,6 +33,45 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 	this->_cellSize = cellSize;
 }
 
+TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector visualScale,
+	UWorld* world, FVector offset, float spacing)
+{
+	TArray<AStaticMeshActor*> visualizations;
+
+	for (int x = 0; x < _gridSize.X; x++)
+	{
+		for (int y = 0; y < _gridSize.Y; y++)
+		{
+			for (int z = 0; z < _gridSize.Z; z++)
+			{
+				FModelCell cell = _grid[x][y][z];
+				for (int i = 0; i < cell.CandidateRuleSets.Num(); i++)
+				{
+					UGenerationRuleset* ruleset = cell.CandidateRuleSets[i];
+					FQuat rotation = ruleset->Current->Rotation;
+					int maxTiles = (int)((_cellSize * 2)/spacing) - 1;
+					FVector position = TileIndexToCoordinates(FVector(x,y,z)) -
+						FVector(_cellSize - (i % maxTiles + 1) * spacing,
+							_cellSize - (i) / maxTiles * spacing, 0) + offset;
+					FTransform spawnTransform = FTransform(rotation, position,
+						visualScale * ruleset->Current->Scale);
+					AStaticMeshActor* levelMeshActor =
+						world->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), spawnTransform);
+					UStaticMeshComponent* meshComponent = levelMeshActor->GetStaticMeshComponent();
+					meshComponent->SetStaticMesh(ruleset->Current->Mesh);
+					meshComponent->SetMobility(EComponentMobility::Static);
+					meshComponent->SetSimulatePhysics(false);
+	
+					levelMeshActor->SetMobility(EComponentMobility::Static);
+					visualizations.Add(levelMeshActor);
+				}
+			}
+		}
+	}
+	
+	return visualizations;
+}
+
 void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 {
 	FModelCell modelCell = _grid[(int)tileIndex.X][(int)tileIndex.Y][(int)tileIndex.Z];
@@ -55,7 +94,7 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 		return;
 	
 	ULabel* chosenLabel = chosenRuleset->Current;
-	FVector spawnLocation = (tileIndex + (_gridSize - FVector(1, 1, 1))/2) * (_cellSize * 2);
+	FVector spawnLocation = TileIndexToCoordinates(tileIndex);
 	FTransform transform = FTransform(chosenLabel->Rotation, spawnLocation, chosenLabel->Scale);
 	
 	AStaticMeshActor* levelMeshActor =
@@ -125,4 +164,9 @@ void UGenerationModel::BeginDestroy()
 {
 	Super::BeginDestroy();
 	DestroySpawnedActors();
+}
+
+FVector UGenerationModel::TileIndexToCoordinates(FVector index)
+{
+	return (index - (_gridSize - FVector(1, 1, 1))/2) * (_cellSize * 2);
 }

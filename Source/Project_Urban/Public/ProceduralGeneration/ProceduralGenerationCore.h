@@ -19,6 +19,9 @@ public:
 	void DrawGrid(FVector gridSize, FVector centerPosition, int cellSize, float lineThickness);
 
 	UFUNCTION(BlueprintCallable)
+	TArray<AStaticMeshActor*> GetTilesVisualization(FVector visualScale, FVector offset, float spacing);
+
+	UFUNCTION(BlueprintCallable)
 	void Generate(TArray<UTileEntryDTO*> tiles);
 	
 	UFUNCTION(BlueprintCallable)

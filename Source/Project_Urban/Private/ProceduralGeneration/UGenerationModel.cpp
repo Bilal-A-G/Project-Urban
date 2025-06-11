@@ -34,7 +34,7 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 }
 
 TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector visualScale,
-	UWorld* world, FVector offset, float spacing)
+	UWorld* world, FVector offset, float spacing, UMaterial* material)
 {
 	TArray<AStaticMeshActor*> visualizations;
 
@@ -45,6 +45,7 @@ TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector
 			for (int z = 0; z < _gridSize.Z; z++)
 			{
 				FModelCell cell = _grid[x][y][z];
+				FVector4 randCellColour = FVector4(rand()%255, rand()%255, rand()%255);
 				for (int i = 0; i < cell.CandidateRuleSets.Num(); i++)
 				{
 					UGenerationRuleset* ruleset = cell.CandidateRuleSets[i];
@@ -61,6 +62,8 @@ TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector
 					meshComponent->SetStaticMesh(ruleset->Current->Mesh);
 					meshComponent->SetMobility(EComponentMobility::Static);
 					meshComponent->SetSimulatePhysics(false);
+					meshComponent->SetMaterial(0, material);
+					meshComponent->SetCustomPrimitiveDataVector4(0, randCellColour/255);
 	
 					levelMeshActor->SetMobility(EComponentMobility::Static);
 					visualizations.Add(levelMeshActor);

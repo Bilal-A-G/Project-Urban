@@ -14,7 +14,8 @@ class PROJECT_URBAN_API UGenerationModel : public UObject
 	GENERATED_BODY()
 public:
 	void Initialize(FVector gridSize, int cellSize, TArray<UGenerationRuleset*> allPossibleRuleSets);
-	TArray<AStaticMeshActor*> GetPossibleTileVisualization(FVector visualScale, UWorld* world, FVector offset, float spacing);
+	TArray<AStaticMeshActor*> GetPossibleTileVisualization(FVector visualScale,
+		UWorld* world, FVector offset, float spacing, UMaterial* material);
 	void CollapseTile(FVector tileIndex, UWorld* world);
 	//Only call after we have collapsed the tile at this index, the function assumes there's only 1
 	//candidate ruleset in that cell

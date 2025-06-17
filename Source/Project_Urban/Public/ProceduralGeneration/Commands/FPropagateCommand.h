@@ -7,7 +7,7 @@ struct FPropagateCommand : FAbstractCommand
 public:
 	FPropagateCommand(FVector newTileIndex);
 	virtual ~FPropagateCommand() override = default;
-	virtual void Execute(UGenerationModel* model, UWorld* world) override;
+	virtual void Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue) override;
 public:
 	FVector tileIndex;
 };

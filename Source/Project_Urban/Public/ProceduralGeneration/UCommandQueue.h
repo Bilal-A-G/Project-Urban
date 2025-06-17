@@ -16,9 +16,11 @@ class PROJECT_URBAN_API UCommandQueue : public UObject
 	GENERATED_BODY()
 public:
 	//TODO, use move semantics here so avoid copying, these added commands belong to the queue after they have been added
-	void PushBack(FAbstractCommand command);
+	void PushBack(FAbstractCommand* command);
 	//Pop the first command off the queue, and execute it
 	void Execute(UGenerationModel* model, UWorld* world);
+	bool IsEmpty();
+	void Clear();
 private:
-	TArray<FAbstractCommand> queue;
+	TArray<FAbstractCommand*> queue;
 };

@@ -2,11 +2,22 @@
 
 #include "Components/LineBatchComponent.h"
 #include "Editor.h"
+#include "Engine/StaticMeshActor.h"
+#include "ProceduralGeneration/UCommandPlayer.h"
 #include "ProceduralGeneration\UGenerationRuleset.h"
 #include "ProceduralGeneration\UTileEntryDTO.h"
 #include "ProceduralGeneration/UGenerationModel.h"
 
-void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPosition, int cellSize, float lineThickness)
+void UProceduralGenerationCore::Init()
+{
+	this->model = NewObject<UGenerationModel>(this);
+	this->commandPlayer = NewObject<UCommandPlayer>(this);
+	commandPlayer->Init();
+	model->OnGridUpdated.AddUniqueDynamic(this, &UProceduralGenerationCore::OnGridChanged);
+}
+
+void UProceduralGenerationCore::DrawGrid(FVector gridSize,
+	FVector centerPosition, int cellSize, float lineThickness)
 {
 	this->gridDimensions = gridSize;
 	this->cellDimension = cellSize;
@@ -28,9 +39,22 @@ void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPositio
 		{
 			for (int z = 0; z < this->gridDimensions.Z + 1; z++)
 			{
+				float thickness = lineThickness;
+				int depthPriority = 0;
+				FVector wholeIndex = FVector(x + gridDimensions.X, y + gridDimensions.Y, z);
+				FLinearColor colour = FLinearColor::White;
+				if(model != nullptr)
+					colour = model->GetColourAtIndex(wholeIndex);
+				
+				if(colour != FLinearColor::White)
+				{
+					thickness = lineThickness * 1.25f;
+					depthPriority = 1;
+				}
+				
 				FVector offset = FVector(x, y, z) * cellSize * 2;
 				lineBatcher->DrawBox(centerPosition + offset, FVector(cellSize, cellSize, cellSize),
-					FLinearColor::White, -1.0f, 0, lineThickness);
+					colour, -1.0f, depthPriority, thickness);
 			}
 		}
 	}
@@ -41,21 +65,11 @@ void UProceduralGenerationCore::DrawGrid(FVector gridSize, FVector centerPositio
 	}
 }
 
-TArray<AStaticMeshActor*> UProceduralGenerationCore::GetTilesVisualization(FVector visualScale,
-	FVector offset, float spacing, UMaterial* material)
+void UProceduralGenerationCore::DrawVisualizations(FVector gridSize, FVector centerPosition, int cellSize,
+	float lineThickness, TArray<UTileEntryDTO*> tiles)
 {
-	if(model == nullptr)
-		return TArray<AStaticMeshActor*>();
-
-	return model->GetPossibleTileVisualization(visualScale, GetWorld(), offset, spacing, material);
-}
-
-void UProceduralGenerationCore::Generate(TArray<UTileEntryDTO*> tiles)
-{
-	if(model == nullptr)
-	{
-		this->model = NewObject<UGenerationModel>(this);
-	}
+	this->gridDimensions = gridSize;
+	this->cellDimension = cellSize;
 	
 	TArray<UGenerationRuleset*> allRuleSets = TArray<UGenerationRuleset*>();
 	
@@ -63,10 +77,27 @@ void UProceduralGenerationCore::Generate(TArray<UTileEntryDTO*> tiles)
 	{
 		allRuleSets.Add(tileEntry->tileRuleset);
 	}
+	FVector convertedGridSize = FVector(gridDimensions.X * 2 + 1,
+	gridDimensions.Y * 2 + 1, gridDimensions.Z + 1);
+	model->Initialize(convertedGridSize, this->cellDimension,
+	allRuleSets);
+	DrawGrid(gridSize, centerPosition, cellSize, lineThickness);
+}
 
-	UE_LOG(LogTemp, Warning, TEXT("X grid size is %f"), this->gridDimensions.X);
-	model->Initialize(this->gridDimensions * 2 + FVector(1, 1, 1), this->cellDimension, allRuleSets);
-	model->CollapseTile(FVector(0, 0, 0), GetWorld());
+TArray<AStaticMeshActor*> UProceduralGenerationCore::GetTilesVisualization(FVector visualScale,
+                                                                           FVector offset, float spacing, UMaterial* material)
+{
+	if(model == nullptr)
+		return TArray<AStaticMeshActor*>();
+	
+	return model->GetPossibleTileVisualization(visualScale, GetWorld(), offset, spacing, material);
+}
+
+void UProceduralGenerationCore::StepForwards()
+{
+	FVector convertedGridSize = FVector(gridDimensions.X * 2 + 1,
+		gridDimensions.Y * 2 + 1, gridDimensions.Z + 1);
+	commandPlayer->StepForward(model, GetWorld(), convertedGridSize);
 }
 
 void UProceduralGenerationCore::ClearDebugGizmos()
@@ -87,4 +118,30 @@ void UProceduralGenerationCore::ClearDebugGizmos()
 	{
 		client->Invalidate();
 	}
+}
+
+void UProceduralGenerationCore::ClearAll()
+{
+	if(model == nullptr)
+		return;
+	
+	model->DestroySpawnedActors();
+	for (int x = -this->gridDimensions.X; x < this->gridDimensions.X + 1; x++)
+	{
+		for (int y = -this->gridDimensions.Y; y < this->gridDimensions.Y + 1; y++)
+		{
+			for (int z = 0; z < this->gridDimensions.Z + 1; z++)
+			{
+				FVector wholeIndex = FVector(x + gridDimensions.X, y + gridDimensions.Y, z);
+				model->SetColourAtIndex(wholeIndex, FLinearColor::White);
+			}
+		}
+	}
+
+	commandPlayer->Clear();
+}
+
+void UProceduralGenerationCore::OnGridChanged()
+{
+	OnGridUpdated.Broadcast();
 }

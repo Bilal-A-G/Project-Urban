@@ -5,6 +5,7 @@
 #include "UObject/Object.h"
 #include "UGenerationModel.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGridUpdatedSignature);
 class UGenerationRuleset;
 
 //This class owns all of our model cells and manages operations on them related to the model synthesis algorithm
@@ -17,17 +18,24 @@ public:
 	TArray<AStaticMeshActor*> GetPossibleTileVisualization(FVector visualScale,
 		UWorld* world, FVector offset, float spacing, UMaterial* material);
 	void CollapseTile(FVector tileIndex, UWorld* world);
+	//Used to visualize the grid
+	FLinearColor GetColourAtIndex(FVector index);
+	//Called by something to aid visualization
+	void SetColourAtIndex(FVector index, FLinearColor colour);
 	//Only call after we have collapsed the tile at this index, the function assumes there's only 1
-	//candidate ruleset in that cell
+	//candidate ruleset in that cell, also only collapses 1 neighbour at a time
 	void PropagateToNeighbours(FVector tileIndex);
 	void DestroySpawnedActors();
 	virtual void BeginDestroy() override;
 private:
 	FVector TileIndexToCoordinates(FVector index);
+public:
+	FOnGridUpdatedSignature OnGridUpdated;
 private:
 	TArray<TArray<TArray<FModelCell>>> _grid;
 	UPROPERTY()
 	TArray<AStaticMeshActor*> _spawnedActors;
 	FVector _gridSize;
 	int _cellSize;
+	int _neighbourIndex;
 };

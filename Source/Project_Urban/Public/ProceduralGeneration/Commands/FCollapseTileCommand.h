@@ -7,7 +7,7 @@ struct FCollapseTileCommand : FAbstractCommand
 public:
 	FCollapseTileCommand(FVector newTileIndex);
 	virtual ~FCollapseTileCommand() override = default;
-	virtual void Execute(UGenerationModel* model, UWorld* world) override;
+	virtual void Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue) override;
 public:
 	FVector tileIndex;
 };

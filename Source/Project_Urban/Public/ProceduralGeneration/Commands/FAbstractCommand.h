@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class UCommandQueue;
 class UGenerationModel;
 
 /**
@@ -12,7 +13,7 @@ struct PROJECT_URBAN_API FAbstractCommand
 public:
 	virtual ~FAbstractCommand() = default;
 	//Impossible to call, just there so we don't have to use pointers
-	virtual void Execute(UGenerationModel* model, UWorld* world){};
+	virtual void Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue){};
 protected:
 	//You can't instantiate this
 	FAbstractCommand() = default;

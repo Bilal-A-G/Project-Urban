@@ -67,6 +67,7 @@ TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector
 					meshComponent->SetCustomPrimitiveDataVector4(0, randCellColour / 255);
 
 					levelMeshActor->SetMobility(EComponentMobility::Static);
+					levelMeshActor->SetFlags(RF_Transient);
 					visualizations.Add(levelMeshActor);
 				}
 			}
@@ -76,26 +77,28 @@ TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector
 	return visualizations;
 }
 
-void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
+bool UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 {
 	FModelCell modelCell = _grid[(int)tileIndex.X][(int)tileIndex.Y][(int)tileIndex.Z];
 	TArray<UGenerationRuleset*> candidateRuleSets = modelCell.CandidateRuleSets;
+	if(modelCell.Collapsed)
+		return false;
 	if (candidateRuleSets.Num() == 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Error, no candidates found in ruleset "
 			       "in cell at (%f, %f, %f)"), tileIndex.X, tileIndex.Y, tileIndex.Z);
-		return;
+		return false;
 	}
 	UGenerationRuleset* chosenRuleset = candidateRuleSets[rand() % candidateRuleSets.Num()];
 	candidateRuleSets.Empty();
 	candidateRuleSets.Add(chosenRuleset);
-
 	//Have to reassign since we're modifying a copy, need to fix this
 	modelCell.CandidateRuleSets = candidateRuleSets;
+	modelCell.Collapsed = true;
 	_grid[tileIndex.X][tileIndex.Y][tileIndex.Z] = modelCell;
 
 	if (world == nullptr)
-		return;
+		return false;
 
 	ULabel* chosenLabel = chosenRuleset->Current;
 	FVector spawnLocation = TileIndexToCoordinates(tileIndex);
@@ -105,7 +108,7 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 		world->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), transform);
 
 	if (levelMeshActor == nullptr)
-		return;
+		return false;
 
 	UStaticMeshComponent* meshComponent = levelMeshActor->GetStaticMeshComponent();
 	meshComponent->SetStaticMesh(chosenLabel->Mesh);
@@ -118,6 +121,34 @@ void UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 	       spawnLocation.X, spawnLocation.Y, spawnLocation.Z)
 	_spawnedActors.Add(levelMeshActor);
 	OnGridUpdated.Broadcast();
+	return true;
+}
+
+TTuple<bool, FVector> UGenerationModel::CollapseRandomValidTile(UWorld* world)
+{
+	TArray<FVector> validCellIndices;
+	for (int x = 0; x < _gridSize.X; x++)
+	{
+		for (int y = 0; y < _gridSize.Y; y++)
+		{
+			for (int z = 0; z < _gridSize.Z; z++)
+			{
+				FModelCell cell = _grid[x][y][z];
+				FVector currentIndex = FVector(x,y,z);
+				if(cell.Collapsed || cell.CandidateRuleSets.Num() == 0)
+					continue;
+				validCellIndices.Add(currentIndex);
+			}
+		}
+	}
+
+	if(validCellIndices.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ran out of tiles to collapse! Generation is over"))
+		return MakeTuple(false, FVector(-1,-1,-1));
+	}
+	int randomChoice = rand() % validCellIndices.Num();
+	return MakeTuple(CollapseTile(validCellIndices[randomChoice], world), validCellIndices[randomChoice]);
 }
 
 FLinearColor UGenerationModel::GetColourAtIndex(FVector index)
@@ -130,13 +161,42 @@ void UGenerationModel::SetColourAtIndex(FVector index, FLinearColor colour)
 	_grid[index.X][index.Y][index.Z].Colour = colour;
 }
 
-void UGenerationModel::PropagateToNeighbours(FVector tileIndex)
+void UGenerationModel::ResetColours()
 {
-	UGenerationRuleset* rulesetAtIndex = _grid[tileIndex.X][tileIndex.Y][tileIndex.Z].CandidateRuleSets[0];
-	if (_neighbourIndex >= static_cast<int>(EAdjacency::LAST))
-		_neighbourIndex = 0;
+	for (int x = 0; x < _gridSize.X; x++)
+	{
+		for (int y = 0; y < _gridSize.Y; y++)
+		{
+			for (int z = 0; z < _gridSize.Z; z++)
+			{
+				_grid[x][y][z].Colour = FLinearColor::White;
+			}
+		}
+	}
+}
 
-	EAdjacency currentAdjacency = static_cast<EAdjacency>(_neighbourIndex);
+void UGenerationModel::ResetVisited()
+{
+	for (int x = 0; x < _gridSize.X; x++)
+	{
+		for (int y = 0; y < _gridSize.Y; y++)
+		{
+			for (int z = 0; z < _gridSize.Z; z++)
+			{
+				_grid[x][y][z].Visited = false;
+			}
+		}
+	}
+}
+
+bool UGenerationModel::PropagateToNeighbours(FVector tileIndex, int neighbourIndex)
+{
+	TArray<UGenerationRuleset*> rulesetsAtIndex = _grid[tileIndex.X][tileIndex.Y][tileIndex.Z].CandidateRuleSets;
+	if (neighbourIndex >= static_cast<int>(EAdjacency::LAST) || rulesetsAtIndex.Num() == 0)
+		return false;
+	UGenerationRuleset* rulesetAtIndex = rulesetsAtIndex[0];
+
+	EAdjacency currentAdjacency = static_cast<EAdjacency>(neighbourIndex);
 	FString stringAdjacency = UEnum::GetValueAsString(currentAdjacency);
 
 	FVector adjacencyIndex = tileIndex + PUrban::ToVector(currentAdjacency);
@@ -147,10 +207,11 @@ void UGenerationModel::PropagateToNeighbours(FVector tileIndex)
 		UE_LOG(LogTemp, Warning, TEXT("Invalid index at adjacency %s "
 			       "for cell at coordinates (%f, %f, %f)"),
 		       *stringAdjacency, tileIndex.X, tileIndex.Y, tileIndex.Z);
-		return;
+		return false;
 	}
-	TArray<UGenerationRuleset*> rulesetsAtAdjacency =
+	TArray<UGenerationRuleset*> originalRulesetsAtAdjacency =
 		_grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets;
+	TArray<UGenerationRuleset*> rulesetsAtAdjacency = originalRulesetsAtAdjacency;
 	UE_LOG(LogTemp, Warning, TEXT("Cell at index (%f, %f, %f) at adjacency %s currently contains %i candidates"),
 	       adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z, *stringAdjacency, rulesetsAtAdjacency.Num());
 	//Modifying by ref
@@ -159,9 +220,11 @@ void UGenerationModel::PropagateToNeighbours(FVector tileIndex)
 	//copying the array and reassigning it like this
 	UE_LOG(LogTemp, Warning, TEXT("Cell at index (%f, %f, %f) now contains %i candidates"),
 	       adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z, rulesetsAtAdjacency.Num());
+	if(originalRulesetsAtAdjacency.Num() == rulesetsAtAdjacency.Num())
+		return false;
 	_grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets = rulesetsAtAdjacency;
-	_neighbourIndex++;
 	OnGridUpdated.Broadcast();
+	return true;
 }
 
 void UGenerationModel::DestroySpawnedActors()

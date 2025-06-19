@@ -5,17 +5,18 @@
 #include "ProceduralGeneration/UGenerationModel.h"
 #include "ProceduralGeneration/Commands/FPropagateCommand.h"
 
-FCollapseTileCommand::FCollapseTileCommand(FVector newTileIndex)
+bool FCollapseTileCommand::Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue)
 {
-	this->tileIndex = newTileIndex;
-}
-
-void FCollapseTileCommand::Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue)
-{
-	model->CollapseTile(this->tileIndex, world);
-	model->SetColourAtIndex(this->tileIndex, FLinearColor::Black);
+	TTuple<bool, FVector> collapseData = model->CollapseRandomValidTile(world);
+	if(!collapseData.Key)
+		return false;
+	
+	model->SetColourAtIndex(collapseData.Value, FLinearColor::Black);
+	model->ResetVisited();
 	for (int i = 0; i < static_cast<int>(EAdjacency::LAST); i++)
 	{
-		commandQueue->PushBack(new FPropagateCommand(this->tileIndex));
+		commandQueue->PushBack(new FPropagateCommand(collapseData.Value, i));
 	}
+	
+	return true;
 }

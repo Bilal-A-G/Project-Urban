@@ -9,12 +9,14 @@ struct FModelCell
 {
 	GENERATED_BODY()
 public:
-	FModelCell(){}
+	FModelCell() : Visited(false), Collapsed(false){}
 	FModelCell(TArray<UGenerationRuleset*> allPossibleRuleSets) : CandidateRuleSets(allPossibleRuleSets),
-	Colour(FLinearColor::White){}
+	Visited(false), Collapsed(false), Colour(FLinearColor::White){}
 public:
 	UPROPERTY()
 	TArray<UGenerationRuleset*> CandidateRuleSets;
+	bool Visited;
+	bool Collapsed;
 	UPROPERTY()
 	FLinearColor Colour;
 };

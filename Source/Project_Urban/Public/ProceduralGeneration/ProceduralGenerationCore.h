@@ -41,6 +41,7 @@ public:
 	FOnGridUpdatedSignature OnGridUpdated;
 private:
 	FVector gridDimensions;
+	TArray<UGenerationRuleset*> lastUsedAllPossibleRuleSets;
 	int cellDimension;
 	UPROPERTY()
 	UGenerationModel* model;

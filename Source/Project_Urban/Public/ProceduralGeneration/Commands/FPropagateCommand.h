@@ -5,9 +5,10 @@
 struct FPropagateCommand : FAbstractCommand
 {
 public:
-	FPropagateCommand(FVector newTileIndex);
+	FPropagateCommand(FVector newTileIndex, int newNeighbourIndex);
 	virtual ~FPropagateCommand() override = default;
-	virtual void Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue) override;
+	virtual bool Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue) override;
 public:
 	FVector tileIndex;
+	int neighbourIndex;
 };

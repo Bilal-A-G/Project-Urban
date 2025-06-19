@@ -68,15 +68,16 @@ void UProceduralGenerationCore::DrawGrid(FVector gridSize,
 void UProceduralGenerationCore::DrawVisualizations(FVector gridSize, FVector centerPosition, int cellSize,
 	float lineThickness, TArray<UTileEntryDTO*> tiles)
 {
-	this->gridDimensions = gridSize;
-	this->cellDimension = cellSize;
-	
 	TArray<UGenerationRuleset*> allRuleSets = TArray<UGenerationRuleset*>();
 	
+	this->gridDimensions = gridSize;
+	this->cellDimension = cellSize;
 	for (const UTileEntryDTO* tileEntry : tiles)
 	{
 		allRuleSets.Add(tileEntry->tileRuleset);
 	}
+	
+	this->lastUsedAllPossibleRuleSets = allRuleSets;
 	FVector convertedGridSize = FVector(gridDimensions.X * 2 + 1,
 	gridDimensions.Y * 2 + 1, gridDimensions.Z + 1);
 	model->Initialize(convertedGridSize, this->cellDimension,
@@ -124,8 +125,10 @@ void UProceduralGenerationCore::ClearAll()
 {
 	if(model == nullptr)
 		return;
-	
-	model->DestroySpawnedActors();
+
+	FVector convertedGridSize = FVector(gridDimensions.X * 2 + 1,
+	gridDimensions.Y * 2 + 1, gridDimensions.Z + 1);
+	model->Initialize(convertedGridSize, cellDimension, lastUsedAllPossibleRuleSets);
 	for (int x = -this->gridDimensions.X; x < this->gridDimensions.X + 1; x++)
 	{
 		for (int y = -this->gridDimensions.Y; y < this->gridDimensions.Y + 1; y++)

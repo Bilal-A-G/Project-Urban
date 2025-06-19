@@ -14,13 +14,17 @@ void UCommandPlayer::Clear()
 
 void UCommandPlayer::StepForward(UGenerationModel* model, UWorld* world, FVector gridSize)
 {
-	if(commandQueue->IsEmpty())
+	bool success = false;
+	//This might crash us, TODO, implement a timeout after a max number of attempts
+	while (!success && !commandQueue->IsEmpty())
 	{
-		commandQueue->PushBack(new FCollapseTileCommand(FVector(rand() % static_cast<int>(gridSize.X),
-		rand() % static_cast<int>(gridSize.Y), rand() % static_cast<int>(gridSize.Z))));
-		UE_LOG(LogTemp, Warning, TEXT("Pushing back a collapse command!"))
+		UE_LOG(LogTemp, Warning, TEXT("Executing first command in queue"))
+		success = commandQueue->Execute(model, world);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Executing first command in queue"))
-	commandQueue->Execute(model, world);
+	if(!success && commandQueue->IsEmpty())
+	{
+		commandQueue->PushBack(new FCollapseTileCommand());
+		UE_LOG(LogTemp, Warning, TEXT("Pushing back a collapse command!"))
+		commandQueue->Execute(model, world);
+	}
 }

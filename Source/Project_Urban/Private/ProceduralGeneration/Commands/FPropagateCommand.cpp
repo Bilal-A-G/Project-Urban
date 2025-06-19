@@ -1,15 +1,31 @@
 ﻿#include "ProceduralGeneration/Commands/FPropagateCommand.h"
 
+#include "ProceduralGeneration/EAdjacency.h"
+#include "ProceduralGeneration/UCommandQueue.h"
 #include "ProceduralGeneration/UGenerationModel.h"
 
-FPropagateCommand::FPropagateCommand(FVector newTileIndex)
+FPropagateCommand::FPropagateCommand(FVector newTileIndex, int newNeighbourIndex)
 {
 	this->tileIndex = newTileIndex;
+	this->neighbourIndex = newNeighbourIndex;
 }
 
-void FPropagateCommand::Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue)
+bool FPropagateCommand::Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue)
 {
-	model->PropagateToNeighbours(this->tileIndex);
-	model->SetColourAtIndex(this->tileIndex, FLinearColor::Yellow);
+	UE_LOG(LogTemp, Warning, TEXT("Trying to execute a propagate command"))
+	bool success = model->PropagateToNeighbours(this->tileIndex, neighbourIndex);
+	if(!success)
+		return false;
+
+	UE_LOG(LogTemp, Warning, TEXT("Propagate command success!"))
+	FVector adjacentIndex = tileIndex + PUrban::ToVector(static_cast<EAdjacency>(neighbourIndex));
+	model->SetColourAtIndex(adjacentIndex, FLinearColor::Yellow);
+	for (int i = 0; i < static_cast<int>(EAdjacency::LAST); i++)
+	{
+		if(static_cast<EAdjacency>(i) == PUrban::Opposite(static_cast<EAdjacency>(neighbourIndex)))
+			continue;
+		commandQueue->PushBack(new FPropagateCommand(adjacentIndex, i));
+	}
+	return true;
 }
 

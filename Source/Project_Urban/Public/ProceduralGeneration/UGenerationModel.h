@@ -17,14 +17,18 @@ public:
 	void Initialize(FVector gridSize, int cellSize, TArray<UGenerationRuleset*> allPossibleRuleSets);
 	TArray<AStaticMeshActor*> GetPossibleTileVisualization(FVector visualScale,
 		UWorld* world, FVector offset, float spacing, UMaterial* material);
-	void CollapseTile(FVector tileIndex, UWorld* world);
+	//Returns true if tile is un-collapsed, false if it has already been collapsed
+	bool CollapseTile(FVector tileIndex, UWorld* world);
+	TTuple<bool, FVector> CollapseRandomValidTile(UWorld* world);
 	//Used to visualize the grid
 	FLinearColor GetColourAtIndex(FVector index);
 	//Called by something to aid visualization
 	void SetColourAtIndex(FVector index, FLinearColor colour);
+	void ResetColours();
+	void ResetVisited();
 	//Only call after we have collapsed the tile at this index, the function assumes there's only 1
 	//candidate ruleset in that cell, also only collapses 1 neighbour at a time
-	void PropagateToNeighbours(FVector tileIndex);
+	bool PropagateToNeighbours(FVector tileIndex, int neighbourIndex);
 	void DestroySpawnedActors();
 	virtual void BeginDestroy() override;
 private:
@@ -37,5 +41,4 @@ private:
 	TArray<AStaticMeshActor*> _spawnedActors;
 	FVector _gridSize;
 	int _cellSize;
-	int _neighbourIndex;
 };

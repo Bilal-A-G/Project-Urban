@@ -1,16 +1,20 @@
 ﻿#include "ProceduralGeneration/UCommandQueue.h"
+#include "ProceduralGeneration/UGenerationModel.h"
 
 void UCommandQueue::PushBack(FAbstractCommand* command)
 {
 	queue.Push(command);
 }
 
-void UCommandQueue::Execute(UGenerationModel* model, UWorld* world)
+bool UCommandQueue::Execute(UGenerationModel* model, UWorld* world)
 {
+	model->ResetColours();
 	FAbstractCommand* command = queue.Pop(EAllowShrinking::No);
-	command->Execute(model, world, this);
+	bool success = command->Execute(model, world, this);
 	delete command;
 	command = nullptr;
+
+	return success;
 }
 
 bool UCommandQueue::IsEmpty()

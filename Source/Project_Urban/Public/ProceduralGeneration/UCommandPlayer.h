@@ -15,10 +15,22 @@ class PROJECT_URBAN_API UCommandPlayer : public UObject
 {
 	GENERATED_BODY()
 public:
-	void Init();
+	void Init(UWorld* worldInstance, FVector gridDimensions, UGenerationModel* modelInstance);
 	void Clear();
-	void StepForward(UGenerationModel* model, UWorld* world, FVector gridSize);
+	void Tick(float deltaTime);
+	void TogglePlay(){isPlaying = !isPlaying;}
+	//Speed defined in how many commands to execute per second, when play is true
+	void SetPlaybackSpeed(float speed){playbackSpeed = speed;}
+	void StepForward();
 private:
+	bool isPlaying;
+	float playbackSpeed;
+	float timeSinceLastPlay;
+	UPROPERTY()
+	UWorld* world;
+	UPROPERTY()
+	UGenerationModel* model;
+	FVector gridSize;
 	UPROPERTY()
 	UCommandQueue* commandQueue;
 };

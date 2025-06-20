@@ -12,8 +12,8 @@ void UProceduralGenerationCore::Init()
 {
 	this->model = NewObject<UGenerationModel>(this);
 	this->commandPlayer = NewObject<UCommandPlayer>(this);
-	commandPlayer->Init();
 	model->OnGridUpdated.AddUniqueDynamic(this, &UProceduralGenerationCore::OnGridChanged);
+	model->OnOnlyColoursUpdated.AddUniqueDynamic(this, &UProceduralGenerationCore::OnOnlyColoursChanged);
 }
 
 void UProceduralGenerationCore::DrawGrid(FVector gridSize,
@@ -82,6 +82,7 @@ void UProceduralGenerationCore::DrawVisualizations(FVector gridSize, FVector cen
 	gridDimensions.Y * 2 + 1, gridDimensions.Z + 1);
 	model->Initialize(convertedGridSize, this->cellDimension,
 	allRuleSets);
+	commandPlayer->Init(GetWorld(), convertedGridSize, model);
 	DrawGrid(gridSize, centerPosition, cellSize, lineThickness);
 }
 
@@ -96,9 +97,22 @@ TArray<AStaticMeshActor*> UProceduralGenerationCore::GetTilesVisualization(FVect
 
 void UProceduralGenerationCore::StepForwards()
 {
-	FVector convertedGridSize = FVector(gridDimensions.X * 2 + 1,
-		gridDimensions.Y * 2 + 1, gridDimensions.Z + 1);
-	commandPlayer->StepForward(model, GetWorld(), convertedGridSize);
+	commandPlayer->StepForward();
+}
+
+void UProceduralGenerationCore::TogglePlaying()
+{
+	commandPlayer->TogglePlay();
+}
+
+void UProceduralGenerationCore::SetPlaybackSpeed(float speed)
+{
+	commandPlayer->SetPlaybackSpeed(speed);
+}
+
+void UProceduralGenerationCore::Tick(float deltaTime)
+{
+	commandPlayer->Tick(deltaTime);
 }
 
 void UProceduralGenerationCore::ClearDebugGizmos()
@@ -129,22 +143,15 @@ void UProceduralGenerationCore::ClearAll()
 	FVector convertedGridSize = FVector(gridDimensions.X * 2 + 1,
 	gridDimensions.Y * 2 + 1, gridDimensions.Z + 1);
 	model->Initialize(convertedGridSize, cellDimension, lastUsedAllPossibleRuleSets);
-	for (int x = -this->gridDimensions.X; x < this->gridDimensions.X + 1; x++)
-	{
-		for (int y = -this->gridDimensions.Y; y < this->gridDimensions.Y + 1; y++)
-		{
-			for (int z = 0; z < this->gridDimensions.Z + 1; z++)
-			{
-				FVector wholeIndex = FVector(x + gridDimensions.X, y + gridDimensions.Y, z);
-				model->SetColourAtIndex(wholeIndex, FLinearColor::White);
-			}
-		}
-	}
-
 	commandPlayer->Clear();
 }
 
 void UProceduralGenerationCore::OnGridChanged()
 {
 	OnGridUpdated.Broadcast();
+}
+
+void UProceduralGenerationCore::OnOnlyColoursChanged()
+{
+	OnOnlyColoursUpdated.Broadcast();
 }

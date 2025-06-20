@@ -35,6 +35,7 @@ private:
 	FVector TileIndexToCoordinates(FVector index);
 public:
 	FOnGridUpdatedSignature OnGridUpdated;
+	FOnGridUpdatedSignature OnOnlyColoursUpdated;
 private:
 	TArray<TArray<TArray<FModelCell>>> _grid;
 	UPROPERTY()

@@ -24,11 +24,22 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DrawVisualizations(FVector gridSize, FVector centerPosition,
 		int cellSize, float lineThickness, TArray<UTileEntryDTO*> tiles);
+	//TODO, redo how this system works
 	UFUNCTION(BlueprintCallable)
 	TArray<AStaticMeshActor*> GetTilesVisualization(FVector visualScale,
 		FVector offset, float spacing, UMaterial* material);
+
 	UFUNCTION(BlueprintCallable)
 	void StepForwards();
+	UFUNCTION(BlueprintCallable)
+	void TogglePlaying();
+	//Speed defined in how many commands to execute per second, when play is true
+	UFUNCTION(BlueprintCallable)
+	void SetPlaybackSpeed(float speed);
+
+	UFUNCTION(BlueprintCallable)
+	void Tick(float deltaTime);
+	
 	UFUNCTION(BlueprintCallable)
 	void ClearDebugGizmos();
 	UFUNCTION(BlueprintCallable)
@@ -36,9 +47,13 @@ public:
 private:
 	UFUNCTION()
 	void OnGridChanged();
+	UFUNCTION()
+	void OnOnlyColoursChanged();
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnGridUpdatedSignature OnGridUpdated;
+	UPROPERTY(BlueprintAssignable)
+	FOnGridUpdatedSignature OnOnlyColoursUpdated;
 private:
 	FVector gridDimensions;
 	TArray<UGenerationRuleset*> lastUsedAllPossibleRuleSets;

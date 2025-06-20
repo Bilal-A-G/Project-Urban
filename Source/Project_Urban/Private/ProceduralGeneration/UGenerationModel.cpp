@@ -159,6 +159,7 @@ FLinearColor UGenerationModel::GetColourAtIndex(FVector index)
 void UGenerationModel::SetColourAtIndex(FVector index, FLinearColor colour)
 {
 	_grid[index.X][index.Y][index.Z].Colour = colour;
+	OnOnlyColoursUpdated.Broadcast();
 }
 
 void UGenerationModel::ResetColours()
@@ -173,6 +174,7 @@ void UGenerationModel::ResetColours()
 			}
 		}
 	}
+	OnOnlyColoursUpdated.Broadcast();
 }
 
 void UGenerationModel::ResetVisited()

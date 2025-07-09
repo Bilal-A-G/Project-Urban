@@ -24,7 +24,7 @@ public:
 	void StepForward();
 private:
 	bool isPlaying;
-	float playbackSpeed;
+	float playbackSpeed = 1.0f;
 	float timeSinceLastPlay;
 	UPROPERTY()
 	UWorld* world;

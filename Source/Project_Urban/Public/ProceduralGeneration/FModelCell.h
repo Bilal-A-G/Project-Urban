@@ -11,12 +11,17 @@ struct FModelCell
 public:
 	FModelCell() : Visited(false), Collapsed(false){}
 	FModelCell(TArray<UGenerationRuleset*> allPossibleRuleSets) : CandidateRuleSets(allPossibleRuleSets),
-	Visited(false), Collapsed(false), Colour(FLinearColor::White){}
+	Visited(false), Collapsed(false), Colour(FLinearColor::White)
+	{
+		VisualizationColour = FLinearColor(FMath::FRand(), FMath::FRand(), FMath::FRand());
+	}
 public:
 	UPROPERTY()
 	TArray<UGenerationRuleset*> CandidateRuleSets;
 	bool Visited;
 	bool Collapsed;
 	UPROPERTY()
-	FLinearColor Colour;
+	FLinearColor Colour = FLinearColor::White;
+	UPROPERTY()
+	FLinearColor VisualizationColour = FLinearColor::White;
 };

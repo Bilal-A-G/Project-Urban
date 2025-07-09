@@ -10,8 +10,6 @@ void UCommandPlayer::Init(UWorld* worldInstance, FVector gridDimensions, UGenera
 	world = worldInstance;
 	model = modelInstance;
 	timeSinceLastPlay = worldInstance->TimeSince(0);
-
-	playbackSpeed = 1.0f;
 }
 
 void UCommandPlayer::Clear()

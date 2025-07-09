@@ -46,12 +46,14 @@ TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector
 			for (int z = 0; z < _gridSize.Z; z++)
 			{
 				FModelCell cell = _grid[x][y][z];
-				FVector4 randCellColour = FVector4(rand() % 255, rand() % 255, rand() % 255);
+				FVector4 cellVisualizationColour = cell.VisualizationColour;
 				for (int i = 0; i < cell.CandidateRuleSets.Num(); i++)
 				{
 					UGenerationRuleset* ruleset = cell.CandidateRuleSets[i];
 					FQuat rotation = ruleset->Current->Rotation;
-					int maxTiles = (int)((_cellSize * 2) / spacing) - 1;
+					int maxTiles = (int)(_cellSize * 2 / spacing) - 1;
+					maxTiles = FMath::Max(maxTiles, 1);
+					UE_LOG(LogTemp, Warning, TEXT("Max tiles = %i"), maxTiles)
 					FVector position = TileIndexToCoordinates(FVector(x, y, z)) -
 						FVector(_cellSize - (i % maxTiles + 1) * spacing,
 						        _cellSize - i / maxTiles * spacing, 0) + offset;
@@ -64,7 +66,7 @@ TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector
 					meshComponent->SetMobility(EComponentMobility::Static);
 					meshComponent->SetSimulatePhysics(false);
 					meshComponent->SetMaterial(0, material);
-					meshComponent->SetCustomPrimitiveDataVector4(0, randCellColour / 255);
+					meshComponent->SetCustomPrimitiveDataVector4(0, cellVisualizationColour);
 
 					levelMeshActor->SetMobility(EComponentMobility::Static);
 					levelMeshActor->SetFlags(RF_Transient);
@@ -153,6 +155,8 @@ TTuple<bool, FVector> UGenerationModel::CollapseRandomValidTile(UWorld* world)
 
 FLinearColor UGenerationModel::GetColourAtIndex(FVector index)
 {
+	if(_grid.Num() <= index.X || _grid[index.X].Num() <= index.Y || _grid[index.X][index.Y].Num() <= index.Z)
+		return FLinearColor::White;
 	return _grid[index.X][index.Y][index.Z].Colour;
 }
 
@@ -249,5 +253,6 @@ void UGenerationModel::BeginDestroy()
 
 FVector UGenerationModel::TileIndexToCoordinates(FVector index)
 {
-	return (index - (_gridSize - FVector(1, 1, 1)) / 2) * (_cellSize * 2);
+	FVector xyGridSize = FVector(_gridSize.X, _gridSize.Y, 0);
+	return (index - (xyGridSize - FVector(1, 1, 0))/2) * (_cellSize * 2);
 }

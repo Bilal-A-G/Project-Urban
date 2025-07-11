@@ -25,7 +25,7 @@ TArray<UTileEntryDTO*> UAdjacencyBaker::BakeAdjacencies(UWorld* world, FVector g
 		{
 			for (int z = zLowerBounds; z < zUpperBounds; z++)
 			{
-				FVector worldCoordinates = IndexToCoordinates(FVector(x,y,z), gridDimensions, cellSize);
+				FVector worldCoordinates = FVector(x,y,z) * cellSize * 2;
 				float halfSize = cellSize/2.0f;
 				TTuple<ULabel*, FString> labelAtPosition = GetLabelAtPosition(world,worldCoordinates, halfSize);
 				bool noLabel = labelAtPosition.Key == nullptr;
@@ -56,7 +56,7 @@ TArray<UTileEntryDTO*> UAdjacencyBaker::BakeAdjacencies(UWorld* world, FVector g
 							movedIndex.Z < zLowerBounds || movedIndex.Z >= zUpperBounds;
 					if(indexOutOfBounds)
 						continue;
-					FVector movedWorldPos = IndexToCoordinates(movedIndex, gridDimensions, cellSize);
+					FVector movedWorldPos = movedIndex * cellSize * 2;
 					TTuple<ULabel*, FString> neighbour = GetLabelAtPosition(world, movedWorldPos, halfSize);
 					bool noNeighbour = neighbour.Key == nullptr;
 					if(noNeighbour)

@@ -21,6 +21,9 @@ public:
 	//as the label parameter, then it will delete the entry at the provided index, shrinking the array 
 	UFUNCTION(BlueprintCallable)
 	void UpdateAdjacencyValue(EAdjacency adjacency, int index, ULabel* label);
+	//Adds a new entry to the corresponding adjacency array, specified by the adjacency enum, does not allow duplicates,
+	//returns whether it succeeded or not
+	bool AddAdjacencyEntry(EAdjacency adjacency, ULabel* label);
 	//Each ruleset must have a unique label tied to it
 	bool operator==(const UGenerationRuleset& Other) const
 	{

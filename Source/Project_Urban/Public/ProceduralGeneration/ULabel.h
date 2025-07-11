@@ -16,10 +16,15 @@ public:
 		this->Rotation = rotation;
 		this->Scale = scale;
 	}
+
+	bool Compare(const ULabel* label) const
+	{
+		return label->Mesh == this->Mesh && label->Rotation.Equals(this->Rotation) && label->Scale.Equals(this->Scale);
+	}
 	
 	bool operator==(const ULabel& Label) const
 	{
-		return Label.Mesh == this->Mesh && Label.Rotation == this->Rotation && Label.Scale == this->Scale;
+		return Label.Mesh == this->Mesh && Label.Rotation.Equals(this->Rotation) && Label.Scale.Equals(this->Scale);
 	}
 public:
 	UPROPERTY(BlueprintReadWrite)

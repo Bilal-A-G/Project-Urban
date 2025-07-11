@@ -3,6 +3,7 @@
 #include "Components/LineBatchComponent.h"
 #include "Editor.h"
 #include "Engine/StaticMeshActor.h"
+#include "ProceduralGeneration/UAdjacencyBaker.h"
 #include "ProceduralGeneration/UCommandPlayer.h"
 #include "ProceduralGeneration\UGenerationRuleset.h"
 #include "ProceduralGeneration\UTileEntryDTO.h"
@@ -11,13 +12,19 @@
 void UProceduralGenerationCore::Init()
 {
 	this->model = NewObject<UGenerationModel>(this);
+	this->adjacencyBaker = NewObject<UAdjacencyBaker>(this);
 	this->commandPlayer = NewObject<UCommandPlayer>(this);
 	model->OnGridUpdated.AddUniqueDynamic(this, &UProceduralGenerationCore::OnGridChanged);
 	model->OnOnlyColoursUpdated.AddUniqueDynamic(this, &UProceduralGenerationCore::OnOnlyColoursChanged);
 }
 
+TArray<UTileEntryDTO*> UProceduralGenerationCore::BakeAdjacencyData()
+{
+	return adjacencyBaker->BakeAdjacencies(GetWorld(), gridDimensions, cellDimension);
+}
+
 void UProceduralGenerationCore::DrawGrid(FVector gridSize,
-	FVector centerPosition, int cellSize, float lineThickness)
+                                         FVector centerPosition, int cellSize, float lineThickness)
 {
 	this->gridDimensions = gridSize;
 	this->cellDimension = cellSize;

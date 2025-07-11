@@ -5,6 +5,7 @@
 #include "UObject/Object.h"
 #include "ProceduralGenerationCore.generated.h"
 
+class UAdjacencyBaker;
 class UCommandPlayer;
 class UTileEntryDTO;
 
@@ -18,6 +19,8 @@ class PROJECT_URBAN_API UProceduralGenerationCore : public UObject
 public:
 	UFUNCTION(BlueprintCallable)
 	void Init();
+	UFUNCTION(BlueprintCallable)
+	TArray<UTileEntryDTO*> BakeAdjacencyData();
 	UFUNCTION(BlueprintCallable)
 	void DrawGrid(FVector gridSize, FVector centerPosition,
 		int cellSize, float lineThickness);
@@ -62,4 +65,6 @@ private:
 	UGenerationModel* model;
 	UPROPERTY()
 	UCommandPlayer* commandPlayer;
+	UPROPERTY()
+	UAdjacencyBaker* adjacencyBaker;
 };

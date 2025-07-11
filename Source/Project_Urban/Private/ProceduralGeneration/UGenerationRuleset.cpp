@@ -88,3 +88,17 @@ void UGenerationRuleset::UpdateAdjacencyValue(EAdjacency adjacency, int index, U
 		return;
 	}
 }
+
+bool UGenerationRuleset::AddAdjacencyEntry(EAdjacency adjacency, ULabel* label)
+{
+	for (FAdjacencyWrapper& wrapper : Adjacencies)
+	{
+		if(wrapper.key != adjacency || wrapper.values.Contains(label))
+			continue;
+		
+		wrapper.values.Add(label);
+		return true;
+	}
+
+	return false;
+}

@@ -24,6 +24,7 @@ public:
 	//Adds a new entry to the corresponding adjacency array, specified by the adjacency enum, does not allow duplicates,
 	//returns whether it succeeded or not
 	bool AddAdjacencyEntry(EAdjacency adjacency, ULabel* label);
+	bool ArrayContains(TArray<ULabel*> array, ULabel* val) const;
 	//Each ruleset must have a unique label tied to it
 	bool operator==(const UGenerationRuleset& Other) const
 	{

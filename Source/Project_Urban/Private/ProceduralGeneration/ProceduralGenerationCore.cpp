@@ -8,6 +8,7 @@
 #include "ProceduralGeneration\UGenerationRuleset.h"
 #include "ProceduralGeneration\UTileEntryDTO.h"
 #include "ProceduralGeneration/UGenerationModel.h"
+#include "ProceduralGeneration/ULabel.h"
 
 void UProceduralGenerationCore::Init()
 {
@@ -82,6 +83,15 @@ void UProceduralGenerationCore::DrawVisualizations(FVector gridSize, FVector cen
 	for (const UTileEntryDTO* tileEntry : tiles)
 	{
 		allRuleSets.Add(tileEntry->tileRuleset);
+		for (const FAdjacencyWrapper& wrapper : tileEntry->tileRuleset->Adjacencies)
+		{
+			for (ULabel* label : wrapper.values)
+			{
+				FVector euler = label->Rotation.Euler();
+				UE_LOG(LogTemp, Warning, TEXT("Found entry with rotation (%f, %f, %f) "
+								  "at adjacency %i"),euler.X, euler.Y, euler.Z, wrapper.key)
+			}
+		}
 	}
 	
 	this->lastUsedAllPossibleRuleSets = allRuleSets;

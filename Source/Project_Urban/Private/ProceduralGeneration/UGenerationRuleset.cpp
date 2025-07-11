@@ -22,8 +22,8 @@ bool UGenerationRuleset::CheckConsistency(const UGenerationRuleset* other, EAdja
 	UE_LOG(LogTemp, Warning, TEXT("Current adjacencies = %i, other opposite adjacencies = %i %s"),
 		currentAdjacencyLabels.Num(), otherOppositeAdjacencyLabels.Num(), *Current->Mesh->GetName())
 	
-	return currentAdjacencyLabels.Contains(other->Current) &&
-		otherOppositeAdjacencyLabels.Contains(Current);
+	return ArrayContains(currentAdjacencyLabels, other->Current) &&
+		ArrayContains(otherOppositeAdjacencyLabels, Current);
 }
 
 void UGenerationRuleset::RemoveInconsistentLabels(const UGenerationRuleset* current, TArray<UGenerationRuleset*>& array,
@@ -100,5 +100,15 @@ bool UGenerationRuleset::AddAdjacencyEntry(EAdjacency adjacency, ULabel* label)
 		return true;
 	}
 
+	return false;
+}
+
+bool UGenerationRuleset::ArrayContains(TArray<ULabel*> array, ULabel* val) const
+{
+	for (int i = 0; i < array.Num(); i++)
+	{
+		if(array[i]->Compare(val))
+			return true;
+	}
 	return false;
 }

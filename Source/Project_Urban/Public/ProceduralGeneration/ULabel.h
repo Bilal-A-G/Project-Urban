@@ -16,15 +16,15 @@ public:
 		this->Rotation = rotation;
 		this->Scale = scale;
 	}
-
+	UFUNCTION(BlueprintCallable)
 	bool Compare(const ULabel* label) const
 	{
-		return label->Mesh == this->Mesh && label->Rotation.Equals(this->Rotation) && label->Scale.Equals(this->Scale);
+		return label->Mesh == this->Mesh && label->Rotation.Equals(this->Rotation, 0.01f) && label->Scale.Equals(this->Scale, 0.01f);
 	}
 	
 	bool operator==(const ULabel& Label) const
 	{
-		return Label.Mesh == this->Mesh && Label.Rotation.Equals(this->Rotation) && Label.Scale.Equals(this->Scale);
+		return Label.Mesh == this->Mesh && Label.Rotation.Equals(this->Rotation, 0.01f) && Label.Scale.Equals(this->Scale, 0.01f);
 	}
 public:
 	UPROPERTY(BlueprintReadWrite)

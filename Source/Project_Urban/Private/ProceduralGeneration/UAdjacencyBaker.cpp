@@ -2,6 +2,7 @@
 
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "ProceduralGeneration/UGenerationModel.h"
 #include "ProceduralGeneration/UGenerationRuleset.h"
 #include "ProceduralGeneration/ULabel.h"
 #include "ProceduralGeneration/UTileEntryDTO.h"
@@ -28,9 +29,6 @@ TArray<UTileEntryDTO*> UAdjacencyBaker::BakeAdjacencies(UWorld* world, FVector g
 				FVector worldCoordinates = FVector(x,y,z) * cellSize * 2;
 				float halfSize = cellSize/2.0f;
 				TTuple<ULabel*, FString> labelAtPosition = GetLabelAtPosition(world,worldCoordinates, halfSize);
-				bool noLabel = labelAtPosition.Key == nullptr;
-				if(noLabel)
-					continue;
 				UTileEntryDTO* exitingEntry = GetExistingEntry(tileEntries, labelAtPosition.Key);
 				bool doesNotExist = exitingEntry == nullptr;
 				if(doesNotExist)
@@ -58,9 +56,6 @@ TArray<UTileEntryDTO*> UAdjacencyBaker::BakeAdjacencies(UWorld* world, FVector g
 						continue;
 					FVector movedWorldPos = movedIndex * cellSize * 2;
 					TTuple<ULabel*, FString> neighbour = GetLabelAtPosition(world, movedWorldPos, halfSize);
-					bool noNeighbour = neighbour.Key == nullptr;
-					if(noNeighbour)
-						continue;
 					bool success = ruleset->AddAdjacencyEntry(currentAdjacency, neighbour.Key);
 					if(success)
 					{
@@ -100,14 +95,21 @@ UTileEntryDTO* UAdjacencyBaker::GetExistingEntry(TArray<UTileEntryDTO*>& array, 
 TTuple<ULabel*, FString> UAdjacencyBaker::GetLabelAtPosition(UWorld* world, FVector worldPosition, int halfCellSize)
 {
 	TTuple<ULabel*, FString> toReturn;
+	ULabel* airTile = NewObject<ULabel>();
+	airTile->Initialize(nullptr, FQuat::Identity, FVector3d::Zero());
+	toReturn.Key = airTile;
+	toReturn.Value = FString("Air");
+	
 	TArray<AActor*> actors;
 	EObjectTypeQuery staticObjects = UEngineTypes::ConvertToObjectType(ECC_WorldStatic);
 	bool foundActorsAtCell = UKismetSystemLibrary::BoxOverlapActors(
 		world, worldPosition, FVector(halfCellSize, halfCellSize, halfCellSize),
 		{staticObjects}, nullptr,{}, actors
 	);
+	
 	if(!foundActorsAtCell || actors.Num() == 0)
 		return toReturn;
+	
 	if(actors.Num() > 1)
 		UE_LOG(LogTemp, Warning, TEXT("Found multiple actors in cell (%f, %f, %f), picking first one found"),
 			worldPosition.X, worldPosition.Y, worldPosition.Z)

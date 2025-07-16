@@ -101,27 +101,30 @@ bool UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 
 	if (world == nullptr)
 		return false;
-
+	
 	ULabel* chosenLabel = chosenRuleset->Current;
-	FVector spawnLocation = TileIndexToCoordinates(tileIndex);
-	FTransform transform = FTransform(chosenLabel->Rotation, spawnLocation, chosenLabel->Scale);
+	if (chosenLabel->Mesh != nullptr)
+	{
+		FVector spawnLocation = TileIndexToCoordinates(tileIndex);
+		FTransform transform = FTransform(chosenLabel->Rotation, spawnLocation, chosenLabel->Scale);
 
-	AStaticMeshActor* levelMeshActor =
-		world->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), transform);
+		AStaticMeshActor* levelMeshActor =
+			world->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), transform);
 
-	if (levelMeshActor == nullptr)
-		return false;
+		if (levelMeshActor == nullptr)
+			return false;
 
-	UStaticMeshComponent* meshComponent = levelMeshActor->GetStaticMeshComponent();
-	meshComponent->SetStaticMesh(chosenLabel->Mesh);
-	meshComponent->SetMobility(EComponentMobility::Static);
-	meshComponent->SetSimulatePhysics(false);
+		UStaticMeshComponent* meshComponent = levelMeshActor->GetStaticMeshComponent();
+		meshComponent->SetStaticMesh(chosenLabel->Mesh);
+		meshComponent->SetMobility(EComponentMobility::Static);
+		meshComponent->SetSimulatePhysics(false);
 
-	levelMeshActor->SetMobility(EComponentMobility::Static);
-	UE_LOG(LogTemp, Warning, TEXT("Successfully spawned a static mesh actor, with mesh name %s"
-		       "at (%f, %f, %f)"), *chosenLabel->Mesh->GetName(),
-	       spawnLocation.X, spawnLocation.Y, spawnLocation.Z)
-	_spawnedActors.Add(levelMeshActor);
+		levelMeshActor->SetMobility(EComponentMobility::Static);
+		UE_LOG(LogTemp, Warning, TEXT("Successfully spawned a static mesh actor, with mesh name %s"
+				   "at (%f, %f, %f)"), *chosenLabel->Mesh->GetName(),
+			   spawnLocation.X, spawnLocation.Y, spawnLocation.Z)
+		_spawnedActors.Add(levelMeshActor);	
+	}
 	OnGridUpdated.Broadcast();
 	return true;
 }

@@ -5,6 +5,7 @@
 #include "UObject/Object.h"
 #include "UGenerationModel.generated.h"
 
+class ULabel;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGridUpdatedSignature);
 class UGenerationRuleset;
 

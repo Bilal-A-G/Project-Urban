@@ -19,8 +19,12 @@ bool UGenerationRuleset::CheckConsistency(const UGenerationRuleset* other, EAdja
 	TArray<ULabel*> currentAdjacencyLabels = GetAdjacencyValuesFromKey(adjacency);
 	TArray<ULabel*> otherOppositeAdjacencyLabels = other->GetAdjacencyValuesFromKey(PUrban::Opposite(adjacency));
 
+	FString name = "Air";
+	if (Current->Mesh != nullptr)
+		name = Current->Mesh->GetName();
+	
 	UE_LOG(LogTemp, Warning, TEXT("Current adjacencies = %i, other opposite adjacencies = %i %s"),
-		currentAdjacencyLabels.Num(), otherOppositeAdjacencyLabels.Num(), *Current->Mesh->GetName())
+		currentAdjacencyLabels.Num(), otherOppositeAdjacencyLabels.Num(), *name)
 	
 	return ArrayContains(currentAdjacencyLabels, other->Current) &&
 		ArrayContains(otherOppositeAdjacencyLabels, Current);
@@ -93,7 +97,7 @@ bool UGenerationRuleset::AddAdjacencyEntry(EAdjacency adjacency, ULabel* label)
 {
 	for (FAdjacencyWrapper& wrapper : Adjacencies)
 	{
-		if(wrapper.key != adjacency || wrapper.values.Contains(label))
+		if(wrapper.key != adjacency || ArrayContains(wrapper.values, label))
 			continue;
 		
 		wrapper.values.Add(label);

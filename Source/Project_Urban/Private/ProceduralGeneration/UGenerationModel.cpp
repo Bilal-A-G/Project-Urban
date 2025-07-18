@@ -11,6 +11,15 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 	_grid.Empty();
 
 	_grid.SetNum(gridSize.X);
+	TArray<EAdjacency> adjacencies;
+	TArray<FVector> borderCells;
+
+	UGenerationRuleset* airRuleset = nullptr;
+	for (int i = 0; i < allPossibleRuleSets.Num(); i++)
+	{
+		if(allPossibleRuleSets[i]->Current->Mesh == nullptr)
+			airRuleset = allPossibleRuleSets[i];
+	}
 
 	for (int x = 0; x < gridSize.X; x++)
 	{
@@ -19,7 +28,32 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 		{
 			for (int z = 0; z < gridSize.Z; z++)
 			{
-				FModelCell createdCell = FModelCell(allPossibleRuleSets);
+				adjacencies.Empty();
+				bool minX = x == 0;
+				bool maxX = x == gridSize.X - 1;
+				bool minY = y == 0;
+				bool maxY = y == gridSize.Y - 1;
+				if(minX || minY || maxX || maxY)
+					borderCells.Add(FVector(x, y, z));
+
+				if(minY)
+					adjacencies.Add(EAdjacency::BACKWARD);
+				else if(maxY)
+					adjacencies.Add(EAdjacency::FORWARD);
+				if(minX)
+					adjacencies.Add(EAdjacency::RIGHT);
+				else if (maxX)
+					adjacencies.Add(EAdjacency::LEFT);
+
+				TArray<UGenerationRuleset*> rulesets = allPossibleRuleSets;
+				if(airRuleset != nullptr)
+					for (int i = 0; i < adjacencies.Num(); i++)
+					{
+						UGenerationRuleset::RemoveInconsistentLabels(airRuleset, rulesets, adjacencies[i]);
+						UE_LOG(LogTemp, Warning, TEXT("Removed possibilities"))
+					}
+				
+				FModelCell createdCell = FModelCell(rulesets);
 				UE_LOG(LogTemp, Warning, TEXT("Created new cell with candidates %i at index (%i, %i, %i)"),
 				       createdCell.CandidateRuleSets.Num(), x, y, z);
 				_grid[x][y].Add(MoveTemp(createdCell));
@@ -27,8 +61,16 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Cell at (0,0,0) has %i candidates"), _grid[0][0][0].CandidateRuleSets.Num());
-
+	//Propagate all border cells to rest of grid, this basically makes sure
+	//the edges can only border air, and the rest of the model respects that
+	for (int i = 0; i < borderCells.Num(); i++)
+	{
+		for (int v = 0; v < static_cast<int>(EAdjacency::LAST); v++)
+		{
+			PropagateToNeighbours(borderCells[i], v);
+		}
+	}
+	
 	this->_gridSize = gridSize;
 	this->_cellSize = cellSize;
 }

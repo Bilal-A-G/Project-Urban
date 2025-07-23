@@ -61,6 +61,8 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 		}
 	}
 
+	FDateTime startTime = FDateTime::Now();
+
 	//Propagate all border cells to rest of grid, this basically makes sure
 	//the edges can only border air, and the rest of the model respects that
 	for (int i = 0; i < borderCells.Num(); i++)
@@ -70,7 +72,9 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 			PropagateToNeighbours(borderCells[i], v);
 		}
 	}
-	
+
+	FTimespan elapsed = FDateTime::Now() - startTime;
+	UE_LOG(LogTemp, Warning, TEXT("Time elapsed since function %f"), elapsed.GetTotalMilliseconds());
 	this->_gridSize = gridSize;
 	this->_cellSize = cellSize;
 }

@@ -27,9 +27,10 @@ public:
 	void SetColourAtIndex(FVector index, FLinearColor colour);
 	void ResetColours();
 	void ResetVisited();
-	//Only call after we have collapsed the tile at this index, the function assumes there's only 1
-	//candidate ruleset in that cell, also only collapses 1 neighbour at a time
-	bool PropagateToNeighbours(FVector tileIndex, int neighbourIndex);
+	//Only propagates 1 neighbour at a time
+	bool PropagateToNeighbours(FVector tileIndex, int neighbourIndex, bool updateGrid);
+	//Propagates changes to the tile index and neighbour combo across the entire grid
+	void RecursivePropagateToNeighbours(FVector tileIndex, int neighbourIndex);
 	void DestroySpawnedActors();
 	virtual void BeginDestroy() override;
 private:

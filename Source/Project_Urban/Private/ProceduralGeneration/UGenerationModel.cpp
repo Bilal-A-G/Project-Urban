@@ -47,11 +47,13 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 
 				TArray<UGenerationRuleset*> rulesets = allPossibleRuleSets;
 				if(airRuleset != nullptr)
+				{
 					for (int i = 0; i < adjacencies.Num(); i++)
 					{
 						UGenerationRuleset::RemoveInconsistentLabels(airRuleset, rulesets, adjacencies[i]);
-						UE_LOG(LogTemp, Warning, TEXT("Removed possibilities"))
+						UE_LOG(LogTemp, Warning, TEXT("Current num rulesets = %i"), rulesets.Num())
 					}
+				}
 				
 				FModelCell createdCell = FModelCell(rulesets);
 				UE_LOG(LogTemp, Warning, TEXT("Created new cell with candidates %i at index (%i, %i, %i)"),
@@ -69,10 +71,11 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 	{
 		for (int v = 0; v < static_cast<int>(EAdjacency::LAST); v++)
 		{
-			PropagateToNeighbours(borderCells[i], v);
+			RecursivePropagateToNeighbours(borderCells[i], v);
 		}
 	}
 
+	ResetVisited();
 	FTimespan elapsed = FDateTime::Now() - startTime;
 	UE_LOG(LogTemp, Warning, TEXT("Time elapsed since function %f"), elapsed.GetTotalMilliseconds());
 	this->_gridSize = gridSize;
@@ -244,16 +247,15 @@ void UGenerationModel::ResetVisited()
 	}
 }
 
-bool UGenerationModel::PropagateToNeighbours(FVector tileIndex, int neighbourIndex)
+bool UGenerationModel::PropagateToNeighbours(FVector tileIndex, int neighbourIndex, bool updateGrid)
 {
-	TArray<UGenerationRuleset*> rulesetsAtIndex = _grid[tileIndex.X][tileIndex.Y][tileIndex.Z].CandidateRuleSets;
-	if (neighbourIndex >= static_cast<int>(EAdjacency::LAST) || rulesetsAtIndex.Num() == 0)
+	TArray<UGenerationRuleset*>& rulesetsAtIndex = _grid[tileIndex.X][tileIndex.Y][tileIndex.Z].CandidateRuleSets;
+	if (neighbourIndex >= static_cast<int>(EAdjacency::LAST))
 		return false;
-	UGenerationRuleset* rulesetAtIndex = rulesetsAtIndex[0];
 
 	EAdjacency currentAdjacency = static_cast<EAdjacency>(neighbourIndex);
 	FString stringAdjacency = UEnum::GetValueAsString(currentAdjacency);
-
+	
 	FVector adjacencyIndex = tileIndex + PUrban::ToVector(currentAdjacency);
 	if (adjacencyIndex.X >= _gridSize.X || adjacencyIndex.X < 0 ||
 		adjacencyIndex.Y >= _gridSize.Y || adjacencyIndex.Y < 0 ||
@@ -264,22 +266,55 @@ bool UGenerationModel::PropagateToNeighbours(FVector tileIndex, int neighbourInd
 		       *stringAdjacency, tileIndex.X, tileIndex.Y, tileIndex.Z);
 		return false;
 	}
-	TArray<UGenerationRuleset*> originalRulesetsAtAdjacency =
+	FDateTime startTime = FDateTime::Now();
+	
+	TArray<UGenerationRuleset*>& rulesetsAtAdjacency =
 		_grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets;
-	TArray<UGenerationRuleset*> rulesetsAtAdjacency = originalRulesetsAtAdjacency;
 	UE_LOG(LogTemp, Warning, TEXT("Cell at index (%f, %f, %f) at adjacency %s currently contains %i candidates"),
 	       adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z, *stringAdjacency, rulesetsAtAdjacency.Num());
 	//Modifying by ref
-	UGenerationRuleset::RemoveInconsistentLabels(rulesetAtIndex, rulesetsAtAdjacency, currentAdjacency);
-	//We can now reset the value once we have modified the array, we should probably figure out a way to avoid
-	//copying the array and reassigning it like this
+	FDateTime removeTime = FDateTime::Now();
+	if(!UGenerationRuleset::RemoveInconsistentLabels(rulesetsAtIndex,rulesetsAtAdjacency, currentAdjacency))
+		return false;
+	FTimespan elapsedSinceRem = FDateTime::Now() - removeTime;
+	UE_LOG(LogTemp, Warning, TEXT("Time elapsed since removed %f"), elapsedSinceRem.GetTotalMilliseconds());
+
+	if(updateGrid)
+		OnGridUpdated.Broadcast();
+
 	UE_LOG(LogTemp, Warning, TEXT("Cell at index (%f, %f, %f) now contains %i candidates"),
 	       adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z, rulesetsAtAdjacency.Num());
-	if(originalRulesetsAtAdjacency.Num() == rulesetsAtAdjacency.Num())
-		return false;
-	_grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets = rulesetsAtAdjacency;
-	OnGridUpdated.Broadcast();
+
+	FTimespan elapsed = FDateTime::Now() - startTime;
+	UE_LOG(LogTemp, Warning, TEXT("Time elapsed since adjacencies updated %f"), elapsed.GetTotalMilliseconds());
+
 	return true;
+}
+
+void UGenerationModel::RecursivePropagateToNeighbours(FVector tileIndex, int neighbourIndex)
+{
+	PropagateToNeighbours(tileIndex, neighbourIndex, false);
+	EAdjacency adjacencyEnum = static_cast<EAdjacency>(neighbourIndex);
+	EAdjacency opposite = PUrban::Opposite(adjacencyEnum);
+	FVector adjacentTileIndex = PUrban::ToVector(adjacencyEnum);
+	//If out of bounds
+	if (adjacentTileIndex.X >= _gridSize.X || adjacentTileIndex.X < 0 ||
+	adjacentTileIndex.Y >= _gridSize.Y || adjacentTileIndex.Y < 0 ||
+	adjacentTileIndex.Z >= _gridSize.Z || adjacentTileIndex.Z < 0)
+	{
+		return;
+	}
+	bool& visited = _grid[adjacentTileIndex.X][adjacentTileIndex.Y][adjacentTileIndex.Z].Visited;
+	if(visited)
+		return;
+	visited = true;
+	for (int i = 0; i < static_cast<int>(EAdjacency::LAST); i++)
+	{
+		EAdjacency asAdjacency = static_cast<EAdjacency>(i);
+		if (asAdjacency == opposite)
+			continue;
+		RecursivePropagateToNeighbours(adjacentTileIndex, i);
+	}
 }
 
 void UGenerationModel::DestroySpawnedActors()

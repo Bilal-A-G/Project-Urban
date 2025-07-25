@@ -30,7 +30,7 @@ bool UGenerationRuleset::CheckConsistency(const UGenerationRuleset* other, EAdja
 		ArrayContains(otherOppositeAdjacencyLabels, Current);
 }
 
-void UGenerationRuleset::RemoveInconsistentLabels(const UGenerationRuleset* current, TArray<UGenerationRuleset*>& array,
+bool UGenerationRuleset::RemoveInconsistentLabels(const UGenerationRuleset* current, TArray<UGenerationRuleset*>& array,
 	EAdjacency adjacency)
 {
 	TArray<UGenerationRuleset*> consistentRulesets;
@@ -41,7 +41,35 @@ void UGenerationRuleset::RemoveInconsistentLabels(const UGenerationRuleset* curr
 		consistentRulesets.Add(currentArrayRuleset);
 	}
 
+	if (array.Num() == consistentRulesets.Num())
+		return false;
+	
 	array = consistentRulesets;
+	return true;
+}	
+
+bool UGenerationRuleset::RemoveInconsistentLabels(TArray<UGenerationRuleset*>& current,
+	TArray<UGenerationRuleset*>& array, EAdjacency adjacency)
+{
+	TArray<UGenerationRuleset*> consistentRulesets;
+	for (UGenerationRuleset* currentArrayRuleset: array)
+	{
+		bool consistent = false;
+		for (UGenerationRuleset* currentCompare : current)
+		{
+			if(currentCompare->CheckConsistency(currentArrayRuleset, adjacency))
+				consistent = true;
+		}
+		if(!consistent)
+			continue;
+		
+		consistentRulesets.Add(currentArrayRuleset);
+	}
+	if(array.Num() == consistentRulesets.Num())
+		return false;
+	
+	array = consistentRulesets;
+	return true;
 }
 
 const TArray<ULabel*> UGenerationRuleset::GetAdjacencyValuesFromKey(EAdjacency adjacency) const

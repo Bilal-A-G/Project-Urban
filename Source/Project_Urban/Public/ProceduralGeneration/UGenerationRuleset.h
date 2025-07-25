@@ -13,7 +13,9 @@ class UGenerationRuleset : public UObject
 public:
 	virtual void PostInitProperties() override;
 	//Modifies the array to conform to the supplied current ruleset at the adjacency provided
-	static void RemoveInconsistentLabels(const UGenerationRuleset* current, TArray<UGenerationRuleset*>& array, EAdjacency adjacency);
+	static bool RemoveInconsistentLabels(const UGenerationRuleset* current, TArray<UGenerationRuleset*>& array, EAdjacency adjacency);
+	//This overload only removes a label from array if it is inconsistent with all rulesets in current, use for propagation
+	static bool RemoveInconsistentLabels(TArray<UGenerationRuleset*>& current, TArray<UGenerationRuleset*>& array, EAdjacency adjacency);
 	//Get a read only copy of our adjacency list, excluding any nullptrs, this does copy, but it's not too bad
 	UFUNCTION(BlueprintCallable)
 	const TArray<ULabel*> GetAdjacencyValuesFromKey(EAdjacency adjacency) const;

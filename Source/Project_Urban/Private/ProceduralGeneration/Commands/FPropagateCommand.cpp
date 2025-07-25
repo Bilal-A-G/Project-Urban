@@ -13,7 +13,7 @@ FPropagateCommand::FPropagateCommand(FVector newTileIndex, int newNeighbourIndex
 bool FPropagateCommand::Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Trying to execute a propagate command"))
-	bool success = model->PropagateToNeighbours(this->tileIndex, neighbourIndex);
+	bool success = model->PropagateToNeighbours(this->tileIndex, neighbourIndex, true);
 	if(!success)
 		return false;
 

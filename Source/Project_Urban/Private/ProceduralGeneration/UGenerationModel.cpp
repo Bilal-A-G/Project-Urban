@@ -128,7 +128,7 @@ TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector
 	return visualizations;
 }
 
-bool UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
+bool UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world, bool update)
 {
 	FModelCell modelCell = _grid[(int)tileIndex.X][(int)tileIndex.Y][(int)tileIndex.Z];
 	TArray<UGenerationRuleset*> candidateRuleSets = modelCell.CandidateRuleSets;
@@ -174,12 +174,14 @@ bool UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world)
 			   spawnLocation.X, spawnLocation.Y, spawnLocation.Z)
 		_spawnedActors.Add(levelMeshActor);	
 	}
-	OnGridUpdated.Broadcast();
+	if(update)
+		OnGridUpdated.Broadcast();
 	return true;
 }
 
-TTuple<bool, FVector> UGenerationModel::CollapseRandomValidTile(UWorld* world)
+TTuple<bool, FVector> UGenerationModel::CollapseRandomValidTile(UWorld* world, bool update)
 {
+	//TODO remove this for loop, have a different system here instead
 	TArray<FVector> validCellIndices;
 	for (int x = 0; x < _gridSize.X; x++)
 	{
@@ -202,7 +204,7 @@ TTuple<bool, FVector> UGenerationModel::CollapseRandomValidTile(UWorld* world)
 		return MakeTuple(false, FVector(-1,-1,-1));
 	}
 	int randomChoice = rand() % validCellIndices.Num();
-	return MakeTuple(CollapseTile(validCellIndices[randomChoice], world), validCellIndices[randomChoice]);
+	return MakeTuple(CollapseTile(validCellIndices[randomChoice], world, update), validCellIndices[randomChoice]);
 }
 
 FLinearColor UGenerationModel::GetColourAtIndex(FVector index)

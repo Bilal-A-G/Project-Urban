@@ -7,7 +7,7 @@
 
 bool FCollapseTileCommand::Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue)
 {
-	TTuple<bool, FVector> collapseData = model->CollapseRandomValidTile(world);
+	TTuple<bool, FVector> collapseData = model->CollapseRandomValidTile(world, true);
 	if(!collapseData.Key)
 		return false;
 	

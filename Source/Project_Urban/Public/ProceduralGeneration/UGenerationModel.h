@@ -19,8 +19,8 @@ public:
 	TArray<AStaticMeshActor*> GetPossibleTileVisualization(FVector visualScale,
 		UWorld* world, FVector offset, float spacing, UMaterial* material);
 	//Returns true if tile is un-collapsed, false if it has already been collapsed
-	bool CollapseTile(FVector tileIndex, UWorld* world);
-	TTuple<bool, FVector> CollapseRandomValidTile(UWorld* world);
+	bool CollapseTile(FVector tileIndex, UWorld* world, bool update);
+	TTuple<bool, FVector> CollapseRandomValidTile(UWorld* world, bool update);
 	//Used to visualize the grid
 	FLinearColor GetColourAtIndex(FVector index);
 	//Called by something to aid visualization

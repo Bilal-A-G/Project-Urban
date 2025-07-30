@@ -29,15 +29,19 @@ void UProceduralGenerationCore::FastCollapseTiles()
 {
 	generationTries = 0;
 	const int maxAttempts = 1000;
-	TTuple<bool, FVector> result = model->CollapseRandomValidTile(GetWorld());
+	FDateTime startTime = FDateTime::Now();
+	TTuple<bool, FVector> result = model->CollapseRandomValidTile(GetWorld(), false);
 	
 	while (result.Key && generationTries < maxAttempts)
 	{
 		generationTries ++;
 		model->RecursivePropagateToAllNeighbours(result.Value);
-		result = model->CollapseRandomValidTile(GetWorld());
+		result = model->CollapseRandomValidTile(GetWorld(), false);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Finished generation, attempts taken = %i"), generationTries)
+	FTimespan elapsedSinceStart = FDateTime::Now() - startTime;
+
+	UE_LOG(LogTemp, Warning, TEXT("Finished generation, attempts taken = %i, time taken = %f"),
+		generationTries, elapsedSinceStart.GetTotalMilliseconds())
 }
 
 void UProceduralGenerationCore::DrawGrid(FVector gridSize,

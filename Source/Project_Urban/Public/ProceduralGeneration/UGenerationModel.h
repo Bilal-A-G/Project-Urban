@@ -31,6 +31,7 @@ public:
 	bool PropagateToNeighbours(FVector tileIndex, int neighbourIndex, bool updateGrid);
 	//Propagates changes to the tile index and neighbour combo across the entire grid
 	void RecursivePropagateToNeighbours(FVector tileIndex, int neighbourIndex);
+	void RecursivePropagateToAllNeighbours(FVector tileIndex);
 	void DestroySpawnedActors();
 	virtual void BeginDestroy() override;
 private:

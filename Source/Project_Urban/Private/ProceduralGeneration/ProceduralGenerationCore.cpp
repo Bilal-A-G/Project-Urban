@@ -3,6 +3,7 @@
 #include "Components/LineBatchComponent.h"
 #include "Editor.h"
 #include "Engine/StaticMeshActor.h"
+#include "Interfaces/IPluginManager.h"
 #include "ProceduralGeneration/UAdjacencyBaker.h"
 #include "ProceduralGeneration/UCommandPlayer.h"
 #include "ProceduralGeneration\UGenerationRuleset.h"
@@ -22,6 +23,21 @@ void UProceduralGenerationCore::Init()
 TArray<UTileEntryDTO*> UProceduralGenerationCore::BakeAdjacencyData()
 {
 	return adjacencyBaker->BakeAdjacencies(GetWorld(), gridDimensions, cellDimension);
+}
+
+void UProceduralGenerationCore::FastCollapseTiles()
+{
+	generationTries = 0;
+	const int maxAttempts = 1000;
+	TTuple<bool, FVector> result = model->CollapseRandomValidTile(GetWorld());
+	
+	while (result.Key && generationTries < maxAttempts)
+	{
+		generationTries ++;
+		model->RecursivePropagateToAllNeighbours(result.Value);
+		result = model->CollapseRandomValidTile(GetWorld());
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Finished generation, attempts taken = %i"), generationTries)
 }
 
 void UProceduralGenerationCore::DrawGrid(FVector gridSize,

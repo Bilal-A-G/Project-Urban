@@ -22,6 +22,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TArray<UTileEntryDTO*> BakeAdjacencyData();
 	UFUNCTION(BlueprintCallable)
+	void FastCollapseTiles();
+	UFUNCTION(BlueprintCallable)
 	void DrawGrid(FVector gridSize, FVector centerPosition,
 		int cellSize, float lineThickness);
 	UFUNCTION(BlueprintCallable)
@@ -60,6 +62,7 @@ public:
 private:
 	FVector gridDimensions;
 	TArray<UGenerationRuleset*> lastUsedAllPossibleRuleSets;
+	int generationTries;
 	int cellDimension;
 	UPROPERTY()
 	UGenerationModel* model;

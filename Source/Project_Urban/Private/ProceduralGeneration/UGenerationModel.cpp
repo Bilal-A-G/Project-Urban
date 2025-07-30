@@ -293,10 +293,11 @@ bool UGenerationModel::PropagateToNeighbours(FVector tileIndex, int neighbourInd
 
 void UGenerationModel::RecursivePropagateToNeighbours(FVector tileIndex, int neighbourIndex)
 {
-	PropagateToNeighbours(tileIndex, neighbourIndex, false);
+	if (!PropagateToNeighbours(tileIndex, neighbourIndex, false))
+		return;
 	EAdjacency adjacencyEnum = static_cast<EAdjacency>(neighbourIndex);
 	EAdjacency opposite = PUrban::Opposite(adjacencyEnum);
-	FVector adjacentTileIndex = PUrban::ToVector(adjacencyEnum);
+	FVector adjacentTileIndex = tileIndex + PUrban::ToVector(adjacencyEnum);
 	//If out of bounds
 	if (adjacentTileIndex.X >= _gridSize.X || adjacentTileIndex.X < 0 ||
 	adjacentTileIndex.Y >= _gridSize.Y || adjacentTileIndex.Y < 0 ||
@@ -304,16 +305,22 @@ void UGenerationModel::RecursivePropagateToNeighbours(FVector tileIndex, int nei
 	{
 		return;
 	}
-	bool& visited = _grid[adjacentTileIndex.X][adjacentTileIndex.Y][adjacentTileIndex.Z].Visited;
-	if(visited)
-		return;
-	visited = true;
 	for (int i = 0; i < static_cast<int>(EAdjacency::LAST); i++)
 	{
 		EAdjacency asAdjacency = static_cast<EAdjacency>(i);
 		if (asAdjacency == opposite)
 			continue;
+
+		UE_LOG(LogTemp, Warning, TEXT("Recursed"))
 		RecursivePropagateToNeighbours(adjacentTileIndex, i);
+	}
+}
+
+void UGenerationModel::RecursivePropagateToAllNeighbours(FVector tileIndex)
+{
+	for (int i = 0; i < static_cast<int>(EAdjacency::LAST); i++)
+	{
+		RecursivePropagateToNeighbours(tileIndex, i);
 	}
 }
 

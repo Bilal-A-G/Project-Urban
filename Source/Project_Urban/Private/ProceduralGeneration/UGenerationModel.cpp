@@ -9,6 +9,7 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 {
 	DestroySpawnedActors();
 	_grid.Empty();
+	_validCollapseIndices.Empty();
 
 	_grid.SetNum(gridSize.X);
 	TArray<EAdjacency> adjacencies;
@@ -59,6 +60,7 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 				UE_LOG(LogTemp, Warning, TEXT("Created new cell with candidates %i at index (%i, %i, %i)"),
 				       createdCell.CandidateRuleSets.Num(), x, y, z);
 				_grid[x][y].Add(MoveTemp(createdCell));
+				_validCollapseIndices.Add(FVector(x, y, z));
 			}
 		}
 	}
@@ -181,30 +183,17 @@ bool UGenerationModel::CollapseTile(FVector tileIndex, UWorld* world, bool updat
 
 TTuple<bool, FVector> UGenerationModel::CollapseRandomValidTile(UWorld* world, bool update)
 {
-	//TODO remove this for loop, have a different system here instead
-	TArray<FVector> validCellIndices;
-	for (int x = 0; x < _gridSize.X; x++)
-	{
-		for (int y = 0; y < _gridSize.Y; y++)
-		{
-			for (int z = 0; z < _gridSize.Z; z++)
-			{
-				FModelCell cell = _grid[x][y][z];
-				FVector currentIndex = FVector(x,y,z);
-				if(cell.Collapsed || cell.CandidateRuleSets.Num() == 0)
-					continue;
-				validCellIndices.Add(currentIndex);
-			}
-		}
-	}
-
-	if(validCellIndices.Num() == 0)
+	if(_validCollapseIndices.Num() == 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ran out of tiles to collapse! Generation is over"))
 		return MakeTuple(false, FVector(-1,-1,-1));
 	}
-	int randomChoice = rand() % validCellIndices.Num();
-	return MakeTuple(CollapseTile(validCellIndices[randomChoice], world, update), validCellIndices[randomChoice]);
+	int randomChoice = rand() % _validCollapseIndices.Num();
+	FVector randomChoiceIndex = _validCollapseIndices[randomChoice];
+	bool collapsed = CollapseTile(randomChoiceIndex, world, update);
+	if (collapsed)
+		_validCollapseIndices.RemoveAt(randomChoice);
+	return MakeTuple(collapsed, randomChoiceIndex);
 }
 
 FLinearColor UGenerationModel::GetColourAtIndex(FVector index)

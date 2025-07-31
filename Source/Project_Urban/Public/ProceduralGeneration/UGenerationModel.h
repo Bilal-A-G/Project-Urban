@@ -41,6 +41,7 @@ public:
 	FOnGridUpdatedSignature OnOnlyColoursUpdated;
 private:
 	TArray<TArray<TArray<FModelCell>>> _grid;
+	TArray<FVector> _validCollapseIndices;
 	UPROPERTY()
 	TArray<AStaticMeshActor*> _spawnedActors;
 	FVector _gridSize;

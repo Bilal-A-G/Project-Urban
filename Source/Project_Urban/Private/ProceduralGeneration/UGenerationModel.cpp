@@ -66,6 +66,8 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 	}
 
 	FDateTime startTime = FDateTime::Now();
+	this->_gridSize = gridSize;
+	this->_cellSize = cellSize;
 
 	//Propagate all border cells to rest of grid, this basically makes sure
 	//the edges can only border air, and the rest of the model respects that
@@ -80,8 +82,6 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 	ResetVisited();
 	FTimespan elapsed = FDateTime::Now() - startTime;
 	UE_LOG(LogTemp, Warning, TEXT("Time elapsed since function %f"), elapsed.GetTotalMilliseconds());
-	this->_gridSize = gridSize;
-	this->_cellSize = cellSize;
 }
 
 TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector visualScale,
@@ -258,7 +258,9 @@ bool UGenerationModel::PropagateToNeighbours(FVector tileIndex, int neighbourInd
 		return false;
 	}
 	FDateTime startTime = FDateTime::Now();
-	
+
+	UE_LOG(LogTemp, Warning, TEXT("Trying to get ruleset at array index (%f, %f, %f)"),
+		adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z);
 	TArray<UGenerationRuleset*>& rulesetsAtAdjacency =
 		_grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets;
 	UE_LOG(LogTemp, Warning, TEXT("Cell at index (%f, %f, %f) at adjacency %s currently contains %i candidates"),

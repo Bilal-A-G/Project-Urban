@@ -117,8 +117,9 @@ void UProceduralGenerationCore::DrawVisualizations(FVector gridSize, FVector cen
 	this->lastUsedAllPossibleRuleSets = allRuleSets;
 	FVector convertedGridSize = FVector(gridDimensions.X * 2 + 1,
 	gridDimensions.Y * 2 + 1, gridDimensions.Z + 1);
-	model->Initialize(convertedGridSize, this->cellDimension,
-	allRuleSets);
+	UE_LOG(LogTemp, Warning, TEXT("Grid size is: %f, %f, %f"),
+		convertedGridSize.X, convertedGridSize.Y, convertedGridSize.Z);
+	model->Initialize(convertedGridSize, this->cellDimension,allRuleSets);
 	commandPlayer->Init(GetWorld(), convertedGridSize, model);
 	DrawGrid(gridSize, centerPosition, cellSize, lineThickness);
 }

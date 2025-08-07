@@ -10,78 +10,13 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 	DestroySpawnedActors();
 	_grid.Empty();
 	_validCollapseIndices.Empty();
+	_gridSize = gridSize;
+	_cellSize = cellSize;
 
+	GenerateBlock(FVector(0, 0, 0), gridSize, allPossibleRuleSets);
+	
 	_grid.SetNum(gridSize.X);
-	TArray<EAdjacency> adjacencies;
-	TArray<FVector> borderCells;
-
-	UGenerationRuleset* airRuleset = nullptr;
-	for (int i = 0; i < allPossibleRuleSets.Num(); i++)
-	{
-		if(allPossibleRuleSets[i]->Current->Mesh == nullptr)
-			airRuleset = allPossibleRuleSets[i];
-	}
-
-	for (int x = 0; x < gridSize.X; x++)
-	{
-		_grid[x].SetNum(gridSize.Y);
-		for (int y = 0; y < gridSize.Y; y++)
-		{
-			for (int z = 0; z < gridSize.Z; z++)
-			{
-				adjacencies.Empty();
-				bool minX = x == 0;
-				bool maxX = x == gridSize.X - 1;
-				bool minY = y == 0;
-				bool maxY = y == gridSize.Y - 1;
-				if(minX || minY || maxX || maxY)
-					borderCells.Add(FVector(x, y, z));
-
-				if(minY)
-					adjacencies.Add(EAdjacency::BACKWARD);
-				else if(maxY)
-					adjacencies.Add(EAdjacency::FORWARD);
-				if(minX)
-					adjacencies.Add(EAdjacency::RIGHT);
-				else if (maxX)
-					adjacencies.Add(EAdjacency::LEFT);
-
-				TArray<UGenerationRuleset*> rulesets = allPossibleRuleSets;
-				if(airRuleset != nullptr)
-				{
-					for (int i = 0; i < adjacencies.Num(); i++)
-					{
-						UGenerationRuleset::RemoveInconsistentLabels(airRuleset, rulesets, adjacencies[i]);
-						UE_LOG(LogTemp, Warning, TEXT("Current num rulesets = %i"), rulesets.Num())
-					}
-				}
-				
-				FModelCell createdCell = FModelCell(rulesets);
-				UE_LOG(LogTemp, Warning, TEXT("Created new cell with candidates %i at index (%i, %i, %i)"),
-				       createdCell.CandidateRuleSets.Num(), x, y, z);
-				_grid[x][y].Add(MoveTemp(createdCell));
-				_validCollapseIndices.Add(FVector(x, y, z));
-			}
-		}
-	}
-
-	FDateTime startTime = FDateTime::Now();
-	this->_gridSize = gridSize;
-	this->_cellSize = cellSize;
-
-	//Propagate all border cells to rest of grid, this basically makes sure
-	//the edges can only border air, and the rest of the model respects that
-	for (int i = 0; i < borderCells.Num(); i++)
-	{
-		for (int v = 0; v < static_cast<int>(EAdjacency::LAST); v++)
-		{
-			RecursivePropagateToNeighbours(borderCells[i], v);
-		}
-	}
-
-	ResetVisited();
-	FTimespan elapsed = FDateTime::Now() - startTime;
-	UE_LOG(LogTemp, Warning, TEXT("Time elapsed since function %f"), elapsed.GetTotalMilliseconds());
+	
 }
 
 TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector visualScale,
@@ -236,6 +171,94 @@ void UGenerationModel::ResetVisited()
 			}
 		}
 	}
+}
+
+void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize, TArray<UGenerationRuleset*> allPossibleRuleSets)
+{
+	TArray<EAdjacency> adjacencies;
+	TArray<FVector> borderCells;
+
+	UGenerationRuleset* airRuleset = nullptr;
+	for (int i = 0; i < allPossibleRuleSets.Num(); i++)
+	{
+		if(allPossibleRuleSets[i]->Current->Mesh == nullptr)
+			airRuleset = allPossibleRuleSets[i];
+	}
+
+	float blockMaxX = bottomLeftIndex.X + blockSize.X;
+	float blockMaxY = bottomLeftIndex.Y + blockSize.Y;
+	
+	for (int x = bottomLeftIndex.X; x < bottomLeftIndex.X + blockSize.X; x++)
+	{
+		for (int y = bottomLeftIndex.Y; y <	bottomLeftIndex.Y + blockSize.Y; y++)
+		{
+			for (int z = bottomLeftIndex.Z; z < bottomLeftIndex.Z + blockSize.Z; z++)
+			{
+				adjacencies.Empty();
+				bool minX = x == bottomLeftIndex.X;
+				bool maxX = x == blockMaxX - 1;
+				bool minY = y == bottomLeftIndex.Y;
+				bool maxY = y == blockMaxY - 1;
+
+				if(minX || minY || maxX || maxY)
+					borderCells.Add(FVector(x, y, z));
+
+				if(minY)
+					adjacencies.Add(EAdjacency::BACKWARD);
+				else if(maxY)
+					adjacencies.Add(EAdjacency::FORWARD);
+				if(minX)
+					adjacencies.Add(EAdjacency::RIGHT);
+				else if (maxX)
+					adjacencies.Add(EAdjacency::LEFT);
+
+				TArray<UGenerationRuleset*> rulesets = allPossibleRuleSets;
+				if(airRuleset != nullptr)
+				{
+					for (int i = 0; i < adjacencies.Num(); i++)
+					{
+						UGenerationRuleset* neighboringRuleset;
+						FVector adjacencyIndex = FVector(x, y, z) + PUrban::ToVector(adjacencies[i]);
+						if (adjacencyIndex.X >= _gridSize.X || adjacencyIndex.X < 0 ||
+							adjacencyIndex.Y >= _gridSize.Y || adjacencyIndex.Y < 0 ||
+							adjacencyIndex.Z >= _gridSize.Z || adjacencyIndex.Z < 0)
+						{
+							neighboringRuleset = airRuleset;
+						}
+						else
+						{
+							//We're assuming the neighbour has been collapsed or it just has 1 possibility
+							neighboringRuleset = _grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets[0];
+						}
+						UGenerationRuleset::RemoveInconsistentLabels(neighboringRuleset, rulesets, adjacencies[i]);
+						UE_LOG(LogTemp, Warning, TEXT("Current num rulesets = %i"), rulesets.Num())
+					}
+				}
+				
+				FModelCell createdCell = FModelCell(rulesets);
+				UE_LOG(LogTemp, Warning, TEXT("Created new cell with candidates %i at index (%i, %i, %i)"),
+				       createdCell.CandidateRuleSets.Num(), x, y, z);
+				_grid[x][y].Add(MoveTemp(createdCell));
+				_validCollapseIndices.Add(FVector(x, y, z));
+			}
+		}
+	}
+
+	FDateTime startTime = FDateTime::Now();
+
+	//Propagate all border cells to rest of grid, this basically makes sure
+	//the edges can only border air, and the rest of the model respects that
+	for (int i = 0; i < borderCells.Num(); i++)
+	{
+		for (int v = 0; v < static_cast<int>(EAdjacency::LAST); v++)
+		{
+			RecursivePropagateToNeighbours(borderCells[i], v);
+		}
+	}
+
+	ResetVisited();
+	FTimespan elapsed = FDateTime::Now() - startTime;
+	UE_LOG(LogTemp, Warning, TEXT("Time elapsed since function %f"), elapsed.GetTotalMilliseconds());
 }
 
 bool UGenerationModel::PropagateToNeighbours(FVector tileIndex, int neighbourIndex, bool updateGrid)

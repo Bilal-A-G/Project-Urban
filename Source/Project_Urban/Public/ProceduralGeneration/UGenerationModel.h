@@ -27,6 +27,8 @@ public:
 	void SetColourAtIndex(FVector index, FLinearColor colour);
 	void ResetColours();
 	void ResetVisited();
+	//Generates a single chunk of the model as specified by the block size and the bottom left index
+	void GenerateBlock(FVector bottomLeftIndex, FVector blockSize, TArray<UGenerationRuleset*> allPossibleRuleSets);
 	//Only propagates 1 neighbour at a time
 	bool PropagateToNeighbours(FVector tileIndex, int neighbourIndex, bool updateGrid);
 	//Propagates changes to the tile index and neighbour combo across the entire grid

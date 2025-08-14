@@ -12,11 +12,21 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 	_validCollapseIndices.Empty();
 	_gridSize = gridSize;
 	_cellSize = cellSize;
-
-	GenerateBlock(FVector(0, 0, 0), gridSize, allPossibleRuleSets);
 	
 	_grid.SetNum(gridSize.X);
+	for	(int x = 0; x < gridSize.X; x++)
+	{
+		_grid[x].SetNum(gridSize.Y);
+		for(int y = 0; y < gridSize.Y; y++)
+		{
+			for (int z = 0; z < gridSize.Z; z++)
+			{
+				_grid[x][y].Add(FModelCell(allPossibleRuleSets));		
+			}	
+		}	
+	}
 	
+	GenerateBlock(FVector(0, 0, 0), gridSize, allPossibleRuleSets);
 }
 
 TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector visualScale,
@@ -187,12 +197,13 @@ void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize,
 
 	float blockMaxX = bottomLeftIndex.X + blockSize.X;
 	float blockMaxY = bottomLeftIndex.Y + blockSize.Y;
+	float blockMaxZ = bottomLeftIndex.Z + blockSize.Z;
 	
-	for (int x = bottomLeftIndex.X; x < bottomLeftIndex.X + blockSize.X; x++)
+	for (int x = bottomLeftIndex.X; x < blockMaxX; x++)
 	{
-		for (int y = bottomLeftIndex.Y; y <	bottomLeftIndex.Y + blockSize.Y; y++)
+		for (int y = bottomLeftIndex.Y; y <	blockMaxY; y++)
 		{
-			for (int z = bottomLeftIndex.Z; z < bottomLeftIndex.Z + blockSize.Z; z++)
+			for (int z = bottomLeftIndex.Z; z < blockMaxZ; z++)
 			{
 				adjacencies.Empty();
 				bool minX = x == bottomLeftIndex.X;
@@ -211,34 +222,40 @@ void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize,
 					adjacencies.Add(EAdjacency::RIGHT);
 				else if (maxX)
 					adjacencies.Add(EAdjacency::LEFT);
-
+				
 				TArray<UGenerationRuleset*> rulesets = allPossibleRuleSets;
 				if(airRuleset != nullptr)
 				{
 					for (int i = 0; i < adjacencies.Num(); i++)
 					{
 						UGenerationRuleset* neighboringRuleset;
-						FVector adjacencyIndex = FVector(x, y, z) + PUrban::ToVector(adjacencies[i]);
+						FVector adjacencyIndex = FVector(x, y, z) - PUrban::ToVector(adjacencies[i]);
+						UE_LOG(LogTemp, Warning, TEXT("Adjacency index is (%f, %f, %f), current index is (%i, %i, %i)"),
+							adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z, x,y,z);
+						
 						if (adjacencyIndex.X >= _gridSize.X || adjacencyIndex.X < 0 ||
 							adjacencyIndex.Y >= _gridSize.Y || adjacencyIndex.Y < 0 ||
 							adjacencyIndex.Z >= _gridSize.Z || adjacencyIndex.Z < 0)
 						{
 							neighboringRuleset = airRuleset;
+							UE_LOG(LogTemp, Warning, TEXT("Edge of the map, neighbouring air"))
 						}
 						else
 						{
+							UE_LOG(LogTemp, Warning, TEXT("Current adjacency = (%f, %f, %f)"), adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z)
+							TArray<UGenerationRuleset*> neighbouringRulesets =_grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets;
+							UE_LOG(LogTemp, Warning, TEXT("Current candidate rulesets = %i"), neighbouringRulesets.Num())
 							//We're assuming the neighbour has been collapsed or it just has 1 possibility
-							neighboringRuleset = _grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets[0];
+							neighboringRuleset = neighbouringRulesets[0];
 						}
 						UGenerationRuleset::RemoveInconsistentLabels(neighboringRuleset, rulesets, adjacencies[i]);
 						UE_LOG(LogTemp, Warning, TEXT("Current num rulesets = %i"), rulesets.Num())
 					}
 				}
-				
+			
 				FModelCell createdCell = FModelCell(rulesets);
-				UE_LOG(LogTemp, Warning, TEXT("Created new cell with candidates %i at index (%i, %i, %i)"),
-				       createdCell.CandidateRuleSets.Num(), x, y, z);
-				_grid[x][y].Add(MoveTemp(createdCell));
+				UE_LOG(LogTemp, Warning, TEXT("Created new cell with candidates %i at index (%i, %i, %i)"), createdCell.CandidateRuleSets.Num(), x, y, z);
+				_grid[x][y][z] = MoveTemp(createdCell);
 				_validCollapseIndices.Add(FVector(x, y, z));
 			}
 		}
@@ -255,6 +272,8 @@ void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize,
 			RecursivePropagateToNeighbours(borderCells[i], v);
 		}
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Border cells = %i"), borderCells.Num());
 
 	ResetVisited();
 	FTimespan elapsed = FDateTime::Now() - startTime;

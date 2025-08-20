@@ -27,8 +27,10 @@ public:
 	void SetColourAtIndex(FVector index, FLinearColor colour);
 	void ResetColours();
 	void ResetVisited();
-	//Generates a single chunk of the model as specified by the block size and the bottom left index
-	void GenerateBlock(FVector bottomLeftIndex, FVector blockSize, TArray<UGenerationRuleset*> allPossibleRuleSets);
+	//Collapses a single chunk of the model as specified by the block size and the bottom left index, only collapses edges, ensures everything in
+	//The model is consistent with each other and their neighbours outside the block
+	//Returns true if collapsed, false if air tile is null
+	bool CollapseBlock(FVector bottomLeftIndex, FVector blockSize, bool updateGrid);
 	//Only propagates 1 neighbour at a time
 	bool PropagateToNeighbours(FVector tileIndex, int neighbourIndex, bool updateGrid);
 	//Propagates changes to the tile index and neighbour combo across the entire grid
@@ -43,6 +45,8 @@ public:
 	FOnGridUpdatedSignature OnOnlyColoursUpdated;
 private:
 	TArray<TArray<TArray<FModelCell>>> _grid;
+	TArray<UGenerationRuleset*> _allPossibleRulesets;
+	UGenerationRuleset* _airRuleset;
 	TArray<FVector> _validCollapseIndices;
 	UPROPERTY()
 	TArray<AStaticMeshActor*> _spawnedActors;

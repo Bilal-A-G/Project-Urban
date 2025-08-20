@@ -25,6 +25,10 @@ public:
 private:
 	bool isPlaying;
 	float playbackSpeed = 1.0f;
+	int timesCollapsed;
+	int maxTimesCollapsedX;
+	int maxTimesCollapsedY;
+	FVector blockSize;
 	float timeSinceLastPlay;
 	UPROPERTY()
 	UWorld* world;

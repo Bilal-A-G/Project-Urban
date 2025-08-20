@@ -12,8 +12,22 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 	_validCollapseIndices.Empty();
 	_gridSize = gridSize;
 	_cellSize = cellSize;
+	_allPossibleRulesets = allPossibleRuleSets;
 	
 	_grid.SetNum(gridSize.X);
+	UGenerationRuleset* airRuleset = nullptr;
+	for(int i = 0; i < allPossibleRuleSets.Num(); i++)
+	{
+		UGenerationRuleset* currentRuleset = allPossibleRuleSets[i];
+		if(currentRuleset->Current->Mesh == nullptr)
+		{
+			airRuleset = currentRuleset;
+			break;
+		}
+	}
+
+	_airRuleset = airRuleset;
+	
 	for	(int x = 0; x < gridSize.X; x++)
 	{
 		_grid[x].SetNum(gridSize.Y);
@@ -21,12 +35,10 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 		{
 			for (int z = 0; z < gridSize.Z; z++)
 			{
-				_grid[x][y].Add(FModelCell(allPossibleRuleSets));		
+				_grid[x][y].Add(FModelCell({airRuleset}));		
 			}	
 		}	
 	}
-	
-	GenerateBlock(FVector(0, 0, 0), gridSize, allPossibleRuleSets);
 }
 
 TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector visualScale,
@@ -47,6 +59,8 @@ TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector
 				for (int i = 0; i < cell.CandidateRuleSets.Num(); i++)
 				{
 					UGenerationRuleset* ruleset = cell.CandidateRuleSets[i];
+					if(ruleset == nullptr)
+						continue;
 					FQuat rotation = ruleset->Current->Rotation;
 					int maxTiles = (int)(_cellSize * 2 / spacing) - 1;
 					maxTiles = FMath::Max(maxTiles, 1);
@@ -183,16 +197,15 @@ void UGenerationModel::ResetVisited()
 	}
 }
 
-void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize, TArray<UGenerationRuleset*> allPossibleRuleSets)
+bool UGenerationModel::CollapseBlock(FVector bottomLeftIndex, FVector blockSize, bool updateGrid)
 {
 	TArray<EAdjacency> adjacencies;
 	TArray<FVector> borderCells;
 
-	UGenerationRuleset* airRuleset = nullptr;
-	for (int i = 0; i < allPossibleRuleSets.Num(); i++)
+	if(_airRuleset == nullptr)
 	{
-		if(allPossibleRuleSets[i]->Current->Mesh == nullptr)
-			airRuleset = allPossibleRuleSets[i];
+		UE_LOG(LogTemp, Warning, TEXT("Air ruleset is null"));
+		return false;
 	}
 
 	float blockMaxX = bottomLeftIndex.X + blockSize.X;
@@ -215,42 +228,43 @@ void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize,
 
 				if(minY)
 					adjacencies.Add(EAdjacency::BACKWARD);
-				else if(maxY)
+				if(maxY)
 					adjacencies.Add(EAdjacency::FORWARD);
 				if(minX)
 					adjacencies.Add(EAdjacency::RIGHT);
-				else if (maxX)
+				if (maxX)
 					adjacencies.Add(EAdjacency::LEFT);
 
-				TArray<UGenerationRuleset*> rulesets = allPossibleRuleSets;
-				if(airRuleset != nullptr)
+				TArray<UGenerationRuleset*> rulesets = _allPossibleRulesets;
+				UE_LOG(LogTemp, Warning, TEXT("Current index is (%i, %i, %i), max is (%f, %f), min is (%f, %f)"), x,y,z,
+					blockMaxX - 1, blockMaxY - 1, bottomLeftIndex.X, bottomLeftIndex.Y);
+				UE_LOG(LogTemp, Warning, TEXT("Previous num rulesets = %i"), rulesets.Num());
+				for (int i = 0; i < adjacencies.Num(); i++)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Previous num rulesets = %i"), rulesets.Num());
-					for (int i = 0; i < adjacencies.Num(); i++)
+					UGenerationRuleset* neighboringRuleset;
+					FVector adjacencyIndex = FVector(x, y, z) - PUrban::ToVector(adjacencies[i]);
+					UE_LOG(LogTemp, Warning, TEXT("Adjacency index is (%f, %f, %f), current index is (%i, %i, %i)"),
+					       adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z, x, y, z);
+
+					if (adjacencyIndex.X >= _gridSize.X || adjacencyIndex.X < 0 ||
+						adjacencyIndex.Y >= _gridSize.Y || adjacencyIndex.Y < 0 ||
+						adjacencyIndex.Z >= _gridSize.Z || adjacencyIndex.Z < 0)
 					{
-						UGenerationRuleset* neighboringRuleset;
-						FVector adjacencyIndex = FVector(x, y, z) - PUrban::ToVector(adjacencies[i]);
-						UE_LOG(LogTemp, Warning, TEXT("Adjacency index is (%f, %f, %f), current index is (%i, %i, %i)"),
-							adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z, x,y,z);
-						
-						if (adjacencyIndex.X >= _gridSize.X || adjacencyIndex.X < 0 ||
-							adjacencyIndex.Y >= _gridSize.Y || adjacencyIndex.Y < 0 ||
-							adjacencyIndex.Z >= _gridSize.Z || adjacencyIndex.Z < 0)
-						{
-							neighboringRuleset = airRuleset;
-							UE_LOG(LogTemp, Warning, TEXT("Edge of the map, neighbouring air"))
-						}
-						else
-						{
-							UE_LOG(LogTemp, Warning, TEXT("Current adjacency = (%f, %f, %f)"), adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z)
-							TArray<UGenerationRuleset*> neighbouringRulesets =_grid[adjacencyIndex.X][adjacencyIndex.Y][adjacencyIndex.Z].CandidateRuleSets;
-							UE_LOG(LogTemp, Warning, TEXT("Current candidate rulesets = %i"), neighbouringRulesets.Num())
-							//We're assuming the neighbour has been collapsed or it just has 1 possibility
-							neighboringRuleset = neighbouringRulesets[0];
-						}
-						UGenerationRuleset::RemoveInconsistentLabels(neighboringRuleset, rulesets, adjacencies[i]);
-						UE_LOG(LogTemp, Warning, TEXT("Current num rulesets = %i"), rulesets.Num())
+						neighboringRuleset = _airRuleset;
+						UE_LOG(LogTemp, Warning, TEXT("Edge of the map, neighbouring air"))
 					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Current adjacency = (%f, %f, %f)"), adjacencyIndex.X,
+						       adjacencyIndex.Y, adjacencyIndex.Z)
+						TArray<UGenerationRuleset*> neighbouringRulesets = _grid[adjacencyIndex.X][adjacencyIndex.Y][
+							adjacencyIndex.Z].CandidateRuleSets;
+						UE_LOG(LogTemp, Warning, TEXT("Current candidate rulesets = %i"), neighbouringRulesets.Num())
+						//We're assuming the neighbour has been collapsed or it just has 1 possibility
+						neighboringRuleset = neighbouringRulesets[0];
+					}
+					//UGenerationRuleset::RemoveInconsistentLabels(neighboringRuleset, rulesets, adjacencies[i]);
+					UE_LOG(LogTemp, Warning, TEXT("Current num rulesets = %i"), rulesets.Num())
 				}
 			
 				FModelCell createdCell = FModelCell(rulesets);
@@ -260,7 +274,10 @@ void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize,
 			}
 		}
 	}
+	/*
 	FDateTime startTime = FDateTime::Now();
+
+	UE_LOG(LogTemp, Warning, TEXT("Border cells = %i"), borderCells.Num());
 
 	//Propagate all border cells to rest of grid, this basically makes sure
 	//the edges can only border air, and the rest of the model respects that
@@ -271,12 +288,14 @@ void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize,
 			RecursivePropagateToNeighbours(borderCells[i], v);
 		}
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Border cells = %i"), borderCells.Num());
-
+	*/
 	ResetVisited();
-	FTimespan elapsed = FDateTime::Now() - startTime;
-	UE_LOG(LogTemp, Warning, TEXT("Time elapsed since function %f"), elapsed.GetTotalMilliseconds());
+	//FTimespan elapsed = FDateTime::Now() - startTime;
+	//UE_LOG(LogTemp, Warning, TEXT("Time elapsed since function %f"), elapsed.GetTotalMilliseconds());
+	if(updateGrid)
+		OnGridUpdated.Broadcast();
+	
+	return true;
 }
 
 bool UGenerationModel::PropagateToNeighbours(FVector tileIndex, int neighbourIndex, bool updateGrid)

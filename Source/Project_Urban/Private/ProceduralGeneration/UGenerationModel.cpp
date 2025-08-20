@@ -43,13 +43,13 @@ TArray<AStaticMeshActor*> UGenerationModel::GetPossibleTileVisualization(FVector
 			{
 				FModelCell cell = _grid[x][y][z];
 				FVector4 cellVisualizationColour = cell.VisualizationColour;
+				UE_LOG(LogTemp, Warning, TEXT("Possible cell candidates are: %i"), cell.CandidateRuleSets.Num());
 				for (int i = 0; i < cell.CandidateRuleSets.Num(); i++)
 				{
 					UGenerationRuleset* ruleset = cell.CandidateRuleSets[i];
 					FQuat rotation = ruleset->Current->Rotation;
 					int maxTiles = (int)(_cellSize * 2 / spacing) - 1;
 					maxTiles = FMath::Max(maxTiles, 1);
-					UE_LOG(LogTemp, Warning, TEXT("Max tiles = %i"), maxTiles)
 					FVector position = TileIndexToCoordinates(FVector(x, y, z)) -
 						FVector(_cellSize - (i % maxTiles + 1) * spacing,
 						        _cellSize - i / maxTiles * spacing, 0) + offset;
@@ -198,7 +198,6 @@ void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize,
 	float blockMaxX = bottomLeftIndex.X + blockSize.X;
 	float blockMaxY = bottomLeftIndex.Y + blockSize.Y;
 	float blockMaxZ = bottomLeftIndex.Z + blockSize.Z;
-	
 	for (int x = bottomLeftIndex.X; x < blockMaxX; x++)
 	{
 		for (int y = bottomLeftIndex.Y; y <	blockMaxY; y++)
@@ -222,10 +221,11 @@ void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize,
 					adjacencies.Add(EAdjacency::RIGHT);
 				else if (maxX)
 					adjacencies.Add(EAdjacency::LEFT);
-				
+
 				TArray<UGenerationRuleset*> rulesets = allPossibleRuleSets;
 				if(airRuleset != nullptr)
 				{
+					UE_LOG(LogTemp, Warning, TEXT("Previous num rulesets = %i"), rulesets.Num());
 					for (int i = 0; i < adjacencies.Num(); i++)
 					{
 						UGenerationRuleset* neighboringRuleset;
@@ -260,7 +260,6 @@ void UGenerationModel::GenerateBlock(FVector bottomLeftIndex, FVector blockSize,
 			}
 		}
 	}
-
 	FDateTime startTime = FDateTime::Now();
 
 	//Propagate all border cells to rest of grid, this basically makes sure

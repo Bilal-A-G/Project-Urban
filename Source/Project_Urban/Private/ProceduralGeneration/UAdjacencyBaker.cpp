@@ -13,10 +13,10 @@ TArray<UTileEntryDTO*> UAdjacencyBaker::BakeAdjacencies(UWorld* world, FVector g
 	UE_LOG(LogTemp, Warning, TEXT("Grid dimensions = (%f, %f, %f)"),
 		gridDimensions.X, gridDimensions.Y, gridDimensions.Z);
 
-	int xLowerBounds = -gridDimensions.X;
-	int xUpperBounds = gridDimensions.X + 1;
-	int yLowerBounds = -gridDimensions.Y;
-	int yUpperBounds = gridDimensions.Y + 1;
+	int xLowerBounds = -gridDimensions.X - 1;
+	int xUpperBounds = gridDimensions.X + 2;
+	int yLowerBounds = -gridDimensions.Y - 1;
+	int yUpperBounds = gridDimensions.Y + 2;
 	int zLowerBounds = 0;
 	int zUpperBounds = gridDimensions.Z + 1;
 	
@@ -49,11 +49,6 @@ TArray<UTileEntryDTO*> UAdjacencyBaker::BakeAdjacencies(UWorld* world, FVector g
 					EAdjacency currentAdjacency = static_cast<EAdjacency>(i);
 					FVector direction = PUrban::ToVector(currentAdjacency);
 					FVector movedIndex = FVector(x, y, z) + direction;
-					bool indexOutOfBounds = movedIndex.X < xLowerBounds || movedIndex.X >= xUpperBounds ||
-						movedIndex.Y < yLowerBounds ||movedIndex.Y >= yUpperBounds ||
-							movedIndex.Z < zLowerBounds || movedIndex.Z >= zUpperBounds;
-					if(indexOutOfBounds)
-						continue;
 					FVector movedWorldPos = movedIndex * cellSize * 2;
 					TTuple<ULabel*, FString> neighbour = GetLabelAtPosition(world, movedWorldPos, halfSize);
 					bool success = ruleset->AddAdjacencyEntry(currentAdjacency, neighbour.Key);

@@ -15,7 +15,11 @@ bool FCollapseBlockCommand::Execute(UGenerationModel* model, UWorld* world, UCom
 	bool collapseBlockResult = model->CollapseBlock(blockBottomLeft, blockSize, true);
 	if(!collapseBlockResult)
 		return false;
-	
-	commandQueue->PushBack(new FCollapseTileCommand());	
+
+	int numBlockTiles = blockSize.X * blockSize.Y * blockSize.Z;
+	for(int i = 0; i < numBlockTiles; i++)
+	{
+		commandQueue->PushBack(new FCollapseTileCommand());	
+	}
 	return true;
 }

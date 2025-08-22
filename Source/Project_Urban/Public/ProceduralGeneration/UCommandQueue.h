@@ -17,6 +17,7 @@ class PROJECT_URBAN_API UCommandQueue : public UObject
 public:
 	//TODO, use move semantics here so avoid copying, these added commands belong to the queue after they have been added
 	void PushBack(FAbstractCommand* command);
+	void PushFront(FAbstractCommand* command);
 	//Pop the first command off the queue, and execute it, if execution fails, it will return false
 	bool Execute(UGenerationModel* model, UWorld* world);
 	bool IsEmpty();

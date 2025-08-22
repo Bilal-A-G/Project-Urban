@@ -38,14 +38,7 @@ void UCommandPlayer::Tick(float deltaTime)
 
 void UCommandPlayer::StepForward()
 {
-	bool success = false;
-	//This might crash us, TODO, implement a timeout after a max number of attempts
-	while (!success && !commandQueue->IsEmpty())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Executing first command in queue"))
-		success = commandQueue->Execute(model, world);
-	}
-	if(!success && commandQueue->IsEmpty())
+	if(commandQueue->IsEmpty())
 	{
 		int xOffset = timesCollapsed % maxTimesCollapsedX;
 		int yOffset = timesCollapsed / maxTimesCollapsedX;
@@ -58,7 +51,10 @@ void UCommandPlayer::StepForward()
 		UE_LOG(LogTemp, Warning, TEXT("Bottom left index = (%i, %i, %i)"), xOffset, yOffset, 0);
 		commandQueue->PushBack(new FCollapseBlockCommand(FVector(xOffset, yOffset, 0), blockSize));
 		timesCollapsed++;
-		UE_LOG(LogTemp, Warning, TEXT("Pushing back a collapse block command!"))
+		commandQueue->Execute(model, world);
+	}
+	else
+	{
 		commandQueue->Execute(model, world);
 	}
 }

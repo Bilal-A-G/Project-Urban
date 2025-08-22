@@ -183,20 +183,6 @@ void UGenerationModel::ResetColours()
 	OnOnlyColoursUpdated.Broadcast();
 }
 
-void UGenerationModel::ResetVisited()
-{
-	for (int x = 0; x < _gridSize.X; x++)
-	{
-		for (int y = 0; y < _gridSize.Y; y++)
-		{
-			for (int z = 0; z < _gridSize.Z; z++)
-			{
-				_grid[x][y][z].Visited = false;
-			}
-		}
-	}
-}
-
 bool UGenerationModel::CollapseBlock(FVector bottomLeftIndex, FVector blockSize, bool updateGrid)
 {
 	TArray<EAdjacency> adjacencies;
@@ -263,7 +249,7 @@ bool UGenerationModel::CollapseBlock(FVector bottomLeftIndex, FVector blockSize,
 						//We're assuming the neighbour has been collapsed or it just has 1 possibility
 						neighboringRuleset = neighbouringRulesets[0];
 					}
-					//UGenerationRuleset::RemoveInconsistentLabels(neighboringRuleset, rulesets, adjacencies[i]);
+					UGenerationRuleset::RemoveInconsistentLabels(neighboringRuleset, rulesets, adjacencies[i]);
 					UE_LOG(LogTemp, Warning, TEXT("Current num rulesets = %i"), rulesets.Num())
 				}
 			
@@ -274,7 +260,6 @@ bool UGenerationModel::CollapseBlock(FVector bottomLeftIndex, FVector blockSize,
 			}
 		}
 	}
-	/*
 	FDateTime startTime = FDateTime::Now();
 
 	UE_LOG(LogTemp, Warning, TEXT("Border cells = %i"), borderCells.Num());
@@ -288,10 +273,8 @@ bool UGenerationModel::CollapseBlock(FVector bottomLeftIndex, FVector blockSize,
 			RecursivePropagateToNeighbours(borderCells[i], v);
 		}
 	}
-	*/
-	ResetVisited();
-	//FTimespan elapsed = FDateTime::Now() - startTime;
-	//UE_LOG(LogTemp, Warning, TEXT("Time elapsed since function %f"), elapsed.GetTotalMilliseconds());
+	FTimespan elapsed = FDateTime::Now() - startTime;
+	UE_LOG(LogTemp, Warning, TEXT("Time elapsed since function %f"), elapsed.GetTotalMilliseconds());
 	if(updateGrid)
 		OnGridUpdated.Broadcast();
 	
@@ -313,8 +296,8 @@ bool UGenerationModel::PropagateToNeighbours(FVector tileIndex, int neighbourInd
 		adjacencyIndex.Z >= _gridSize.Z || adjacencyIndex.Z < 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Invalid index at adjacency %s "
-			       "for cell at coordinates (%f, %f, %f)"),
-		       *stringAdjacency, tileIndex.X, tileIndex.Y, tileIndex.Z);
+			       "for cell at coordinates (%f, %f, %f), adjacency index = (%f, %f, %f)"),
+		       *stringAdjacency, tileIndex.X, tileIndex.Y, tileIndex.Z, adjacencyIndex.X, adjacencyIndex.Y, adjacencyIndex.Z);
 		return false;
 	}
 	FDateTime startTime = FDateTime::Now();

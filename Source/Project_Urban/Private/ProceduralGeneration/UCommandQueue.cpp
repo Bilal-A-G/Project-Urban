@@ -6,14 +6,19 @@ void UCommandQueue::PushBack(FAbstractCommand* command)
 	queue.Push(command);
 }
 
+void UCommandQueue::PushFront(FAbstractCommand* command)
+{
+	queue.Insert(command, 0);
+}
+
 bool UCommandQueue::Execute(UGenerationModel* model, UWorld* world)
 {
 	model->ResetColours();
-	FAbstractCommand* command = queue.Pop(EAllowShrinking::No);
+	FAbstractCommand* command = queue[0];
 	bool success = command->Execute(model, world, this);
-	delete command;
-	command = nullptr;
+	queue.RemoveAt(0, EAllowShrinking::No);
 
+	UE_LOG(LogTemp, Warning, TEXT("The queue contains %i commands"), queue.Num());
 	return success;
 }
 

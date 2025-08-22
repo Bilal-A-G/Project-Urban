@@ -24,7 +24,8 @@ bool FPropagateCommand::Execute(UGenerationModel* model, UWorld* world, UCommand
 	{
 		if(static_cast<EAdjacency>(i) == PUrban::Opposite(static_cast<EAdjacency>(neighbourIndex)))
 			continue;
-		commandQueue->PushBack(new FPropagateCommand(adjacentIndex, i));
+		UE_LOG(LogTemp, Warning, TEXT("Pushed front a propagate command"))
+		commandQueue->PushFront(new FPropagateCommand(adjacentIndex, i));
 	}
 	return true;
 }

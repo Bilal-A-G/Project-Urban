@@ -26,7 +26,6 @@ public:
 	//Called by something to aid visualization
 	void SetColourAtIndex(FVector index, FLinearColor colour);
 	void ResetColours();
-	void ResetVisited();
 	//Collapses a single chunk of the model as specified by the block size and the bottom left index, only collapses edges, ensures everything in
 	//The model is consistent with each other and their neighbours outside the block
 	//Returns true if collapsed, false if air tile is null

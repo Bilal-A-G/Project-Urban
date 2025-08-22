@@ -36,6 +36,8 @@ public:
 	void RecursivePropagateToNeighbours(FVector tileIndex, int neighbourIndex);
 	void RecursivePropagateToAllNeighbours(FVector tileIndex);
 	void DestroySpawnedActors();
+	
+	TArray<TArray<TArray<FModelCell>>>& D_GetGrid();
 	virtual void BeginDestroy() override;
 private:
 	FVector TileIndexToCoordinates(FVector index);

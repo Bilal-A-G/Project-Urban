@@ -14,7 +14,7 @@ void UGenerationModel::Initialize(FVector gridSize, int cellSize, TArray<UGenera
 	_cellSize = cellSize;
 	_allPossibleRulesets = allPossibleRuleSets;
 	
-	_grid.SetNum(gridSize.X);
+	_grid.SetNum(gridSize.X * 2 + 1);
 	UGenerationRuleset* airRuleset = nullptr;
 	for(int i = 0; i < allPossibleRuleSets.Num(); i++)
 	{
@@ -371,6 +371,12 @@ void UGenerationModel::DestroySpawnedActors()
 
 	_spawnedActors.Empty();
 }
+
+TArray<TArray<TArray<FModelCell>>>& UGenerationModel::D_GetGrid()
+{
+	return _grid;
+}
+
 
 void UGenerationModel::BeginDestroy()
 {

@@ -4,7 +4,7 @@
 
 namespace INCSizeTypeConverter
 {
-	FGridCellCountSize GridExtentsToCellCount(const FGridExtentsSize& extents_size)
+	inline FGridCellCountSize GridExtentsToCellCount(const FGridExtentsSize& extents_size)
 	{
 		FVector extents_vector = extents_size.size;
 		FVector converted_vector = extents_vector * 2 + FVector(1,1,1);
@@ -12,7 +12,7 @@ namespace INCSizeTypeConverter
 		
 		return FGridCellCountSize(converted_vector);
 	}
-	FGridExtentsSize GridCellCountToExtents(const FGridCellCountSize cell_count_size)
+	inline FGridExtentsSize GridCellCountToExtents(const FGridCellCountSize cell_count_size)
 	{
 		FVector cell_count_vector = cell_count_size.size;
 		FVector converted_vector = (cell_count_vector - FVector(1,1,1)) / 2;

@@ -7,6 +7,10 @@ public:
 	{
 		vector = input;
 	}
+	FGridArrayIndexCoordinate()
+	{
+		vector = FVector(0,0,0);
+	}
 public:
 	FVector vector;
 };

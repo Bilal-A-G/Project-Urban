@@ -14,12 +14,22 @@ class PROJECT_URBAN_API UGenerationModelImpl: public UObject
 {
 	GENERATED_BODY()
 public:
-	void Initialize(FGridExtentsSize grid_size, TArray<UGenerationRuleset*> all_possible_rulesets);
+	void Initialize(FGridExtentsSize grid_size, TArray<UGenerationRuleset*>& all_possible_rulesets, bool add_to_valid_collapse = false);
 	bool CollapseTile(FGridArrayIndexCoordinate tile_index);
-	bool PropagateToNeighbour(FGridArrayIndexCoordinate tile_index, int neighbour_index);
+	bool MakeNeighbourPossibilitiesConsistent(FGridArrayIndexCoordinate starting_index, EAdjacency to_neighbour_adjacency);
+	
+	bool MakeAllNeighboursPossibilitiesConsistent(FGridArrayIndexCoordinate starting_index);
+	void MakeGridPossibilitiesConsistent(FGridArrayIndexCoordinate starting_index);
+	bool CollapseBlock(FGridArrayIndexCoordinate bottom_left_index, FGridArrayIndexCoordinate block_size);
+	TTuple<bool, FGridArrayIndexCoordinate> CollapseRandomValidTile();
+private:
+	bool ResetGridPossibilitiesInRegion(FGridArrayIndexCoordinate bottom_left_index, FGridArrayIndexCoordinate region_size);
 public:
 	TArray<FModelCell>& D_GetGrid(){return grid_;}
 private:
 	TArray<FModelCell> grid_;
+	UPROPERTY()
+	TArray<UGenerationRuleset*> all_possible_rulesets_;
 	FGridCellCountSize grid_size_;
+	TArray<FGridArrayIndexCoordinate> valid_collapse_indices_;
 };

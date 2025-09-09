@@ -27,15 +27,15 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(GridMakeGridPossibilitiesConsistent, "Project_U
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(GridCollapseRandomTile, "Project_Urban.ModelImpl.GridCollapseRandomTile",
 									EAutomationTestFlags::EditorContext | EAutomationTestFlags::CriticalPriority | EAutomationTestFlags::ProductFilter)
 
-UGenerationModelImpl* SetupTestModel(FGridExtentsSize& size, TArray<UGenerationRuleset*> all_possible_rulesets)
+UGenerationModelImpl* SetupTestModel(FGridExtentsSize& size, FGenerationRulesetHolder& all_possible_rulesets)
 {
 	UGenerationModelImpl* created_model = NewObject<UGenerationModelImpl>();
 	created_model->Initialize(size, all_possible_rulesets);
 	return created_model;
 }
-TArray<UGenerationRuleset*> SetupMockRulesetData()
+FGenerationRulesetHolder SetupMockRulesetData()
 {
-	TArray<UGenerationRuleset*> mock_data = TArray<UGenerationRuleset*>();
+	FGenerationRulesetHolder mock_data = FGenerationRulesetHolder();
 	
 	ULabel* square_label = NewObject<ULabel>();
 	UStaticMesh* square_mesh = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(),nullptr,
@@ -65,7 +65,8 @@ TArray<UGenerationRuleset*> SetupMockRulesetData()
 	cylinder->AddAdjacencyEntry(EAdjacency::LEFT, square_label);
 	cylinder->AddAdjacencyEntry(EAdjacency::RIGHT, square_label);
 
-	mock_data.Append({square, cylinder});
+	mock_data.AddRuleset(square);
+	mock_data.AddRuleset(cylinder);
 	return mock_data;
 }
 
@@ -86,32 +87,22 @@ bool GridSize::RunTest(const FString& Parameters)
 bool GridInitialState::RunTest(const FString& Parameters)
 {
 	FGridExtentsSize given_size = FVector(1,1,0);
-	TArray<UGenerationRuleset*> given_rulesets = SetupMockRulesetData();
+	FGenerationRulesetHolder given_rulesets = SetupMockRulesetData();
 	UGenerationModelImpl* model_impl = SetupTestModel(given_size,given_rulesets);
 	TArray<FModelCell> generated_grid = model_impl->D_GetGrid();
 	for(int i = 0; i < generated_grid.Num(); i++)
 	{
 		FModelCell current_cell = generated_grid[i];
-		TArray<UGenerationRuleset*> candidate_rulesets = current_cell.CandidateRuleSets;
-		if(candidate_rulesets.Num() != given_rulesets.Num())
-		{
-			UE_LOG(LogTemp, Error, TEXT("Grid candidate ruleset count mismatch! Expected={%i}, Got={%i}"), given_rulesets.Num(), candidate_rulesets.Num())
+		FGenerationRulesetHolder candidate_rulesets = current_cell.rulesets_;
+		if(!candidate_rulesets.IsEqualTo(given_rulesets))
 			return false;
-		}
-		int random_index = rand() % candidate_rulesets.Num();
-		if(candidate_rulesets[random_index] != given_rulesets[random_index])
-		{
-			UE_LOG(LogTemp, Error,TEXT("Grid element {%i} mismatch! No additional data available"), random_index)
-			return false;
-		}
 	}
-	
 	return true;
 }
 
 bool GridCollapseTile::RunTest(const FString& Parameters)
 {
-	TArray<UGenerationRuleset*> given_ruleset = SetupMockRulesetData();
+	FGenerationRulesetHolder given_ruleset = SetupMockRulesetData();
 	FGridExtentsSize given_size = FGridExtentsSize(FVector(1,1,0));
 	UGenerationModelImpl* model_impl = NewObject<UGenerationModelImpl>();
 	model_impl->Initialize(given_size, given_ruleset);
@@ -126,30 +117,15 @@ bool GridCollapseTile::RunTest(const FString& Parameters)
 	FGridCellCountSize size_to_cell_count = INCSizeTypeConverter::GridExtentsToCellCount(given_size);
 	int flattened_index = INCCoordinateSpaceConverter::FlattenGridArrayIndexCoordinate(collapse_index, size_to_cell_count);
 	FModelCell collapsed_cell = grid[flattened_index];
-	TArray<UGenerationRuleset*> candidate_rulesets = collapsed_cell.CandidateRuleSets;
-	if(candidate_rulesets.Num() > 1)
+	FGenerationRulesetHolder candidate_rulesets = collapsed_cell.rulesets_;
+	if(candidate_rulesets.IsEmpty())
 	{
-		UE_LOG(LogTemp, Error, TEXT("Model collapse failed! Expected number of rulesets after collapse = {%i}, got {%i}"), 1, candidate_rulesets.Num())
+		UE_LOG(LogTemp, Error, TEXT("Model collapse failed! Candidates are empty, expected {%i}"), 1)
 		return false;
 	}
-	for(int i = 0; i < candidate_rulesets.Num(); i++)
+	if(!candidate_rulesets.IsSubSetOf(given_ruleset))
 	{
-		UGenerationRuleset* current_candidate = candidate_rulesets[i];
-		bool contains = false;
-		for(int v = 0; v < given_ruleset.Num(); v++)
-		{
-			UGenerationRuleset* current_given = given_ruleset[v];
-			if(current_candidate == current_given)
-			{
-				contains = true;
-				break;
-			}
-		}
-		if(!contains)
-		{
-			UE_LOG(LogTemp, Error, TEXT("Model collapse error! Candidate in ruleset after collapse is not found in given ruleset"))
-			return false;
-		}
+		UE_LOG(LogTemp, Error, TEXT("Model collapse failed! Rulesets after collapse are not a subset of given rulesets!"))
 	}
 	return true;
 }

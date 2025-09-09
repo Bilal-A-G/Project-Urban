@@ -1,7 +1,7 @@
 ﻿#pragma once
+#include "ProceduralGeneration/UCommandQueue.h"
+#include "ProceduralGeneration/Model/U_Generation_Model_Impl.h"
 
-class UCommandQueue;
-class UGenerationModel;
 
 /**
  * This class that represents a command in the command queue, needs to have a concrete implementation defined.
@@ -13,7 +13,7 @@ struct PROJECT_URBAN_API FAbstractCommand
 public:
 	virtual ~FAbstractCommand() = default;
 	//Impossible to call, just there so we don't have to use pointers
-	virtual bool Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue){ return false;};
+	virtual bool Execute(UGenerationModelImpl* model, UWorld* world, UCommandQueue* command_queue){ return false;};
 protected:
 	//You can't instantiate this
 	FAbstractCommand() = default;

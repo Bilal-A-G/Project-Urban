@@ -1,8 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "ProceduralGeneration/FModelCell.h"
-#include "ProceduralGeneration/UGenerationRuleset.h"
+#include "..\F_Model_Cell.h"
 #include "ProceduralGeneration/CoordinateSpaces/F_Grid_Array_Index_Coordinate.h"
 #include "ProceduralGeneration/CoordinateSpaces/Sizing/F_Grid_Cell_Count_Size.h"
 #include "ProceduralGeneration/CoordinateSpaces/Sizing/F_Grid_Extents_Size.h"
@@ -14,7 +13,7 @@ class PROJECT_URBAN_API UGenerationModelImpl: public UObject
 {
 	GENERATED_BODY()
 public:
-	void Initialize(FGridExtentsSize grid_size, TArray<UGenerationRuleset*>& all_possible_rulesets, bool add_to_valid_collapse = false);
+	void Initialize(FGridExtentsSize grid_size, FGenerationRulesetHolder all_possible_rulesets, bool add_to_valid_collapse = false);
 	bool CollapseTile(FGridArrayIndexCoordinate tile_index);
 	bool MakeNeighbourPossibilitiesConsistent(FGridArrayIndexCoordinate starting_index, EAdjacency to_neighbour_adjacency);
 	
@@ -29,7 +28,7 @@ public:
 private:
 	TArray<FModelCell> grid_;
 	UPROPERTY()
-	TArray<UGenerationRuleset*> all_possible_rulesets_;
+	FGenerationRulesetHolder all_possible_rulesets_;
 	FGridCellCountSize grid_size_;
 	TArray<FGridArrayIndexCoordinate> valid_collapse_indices_;
 };

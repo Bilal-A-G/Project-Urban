@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "FAdjacencyWrapper.h"
+#include "ProceduralGeneration/EAdjacency.h"
 #include "UGenerationRuleset.generated.h"
 
 class ULabel;

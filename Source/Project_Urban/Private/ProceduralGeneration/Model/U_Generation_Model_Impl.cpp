@@ -3,9 +3,10 @@
 #include "ProceduralGeneration/CoordinateSpaces/Sizing/INC_Size_Type_Converter.h"
 #include "ProceduralGeneration/Model/Utility/INC_Model_Utilities.h"
 
-void UGenerationModelImpl::Initialize(FGridExtentsSize grid_size, TArray<UGenerationRuleset*>& all_possible_rulesets, bool add_to_valid_collapse)
+void UGenerationModelImpl::Initialize(FGridExtentsSize grid_size, FGenerationRulesetHolder all_possible_rulesets, bool add_to_valid_collapse)
 {
 	grid_.Empty();
+	all_possible_rulesets_ = all_possible_rulesets;
 	FGridCellCountSize to_cell_count = INCSizeTypeConverter::GridExtentsToCellCount(grid_size);
 	grid_size_ = to_cell_count;
 	FVector grid_size_vector = to_cell_count.size;
@@ -24,25 +25,14 @@ bool UGenerationModelImpl::CollapseTile(FGridArrayIndexCoordinate tile_index)
 {
 	int flattened_tile_index = INCCoordinateSpaceConverter::FlattenGridArrayIndexCoordinate(tile_index, grid_size_);
 	FModelCell& cell = grid_[flattened_tile_index];
-	TArray<UGenerationRuleset*>& candidates = cell.CandidateRuleSets;
-
-	if(candidates.Num() == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No candidates found in cell, cannot collapse"))
-		return false;
-	}
-	int random_index = rand() % candidates.Num();
-	UGenerationRuleset* selected_ruleset = candidates[random_index];
-	candidates.Empty();
-	candidates.Add(selected_ruleset);
-	
-	return true;
+	FGenerationRulesetHolder ruleset_holder = cell.rulesets_;
+	return ruleset_holder.TryCollapseRandom();
 }
 
 bool UGenerationModelImpl::MakeNeighbourPossibilitiesConsistent(FGridArrayIndexCoordinate starting_index, EAdjacency to_neighbour_adjacency)
 {
 	int flattened_tile_index = INCCoordinateSpaceConverter::FlattenGridArrayIndexCoordinate(starting_index, grid_size_);
-	TArray<UGenerationRuleset*>& rulesets = grid_[flattened_tile_index].CandidateRuleSets;
+	FGenerationRulesetHolder rulesets_holder = grid_[flattened_tile_index].rulesets_;
 	if(to_neighbour_adjacency == EAdjacency::LAST || to_neighbour_adjacency == EAdjacency::INVALID)
 		return false;
 	
@@ -51,12 +41,9 @@ bool UGenerationModelImpl::MakeNeighbourPossibilitiesConsistent(FGridArrayIndexC
 	if(INCModelUtilities::OutOfBounds(adjacent_index, grid_size_))
 		return false;
 	int flattened_adjacency_index = INCCoordinateSpaceConverter::FlattenGridArrayIndexCoordinate(adjacent_index, grid_size_);
-	TArray<UGenerationRuleset*>& rulesets_at_adjacency = grid_[flattened_adjacency_index].CandidateRuleSets;
+	FGenerationRulesetHolder rulesets_holder_at_adjacency = grid_[flattened_adjacency_index].rulesets_;
 
-	if(!UGenerationRuleset::RemoveInconsistentLabels(rulesets, rulesets_at_adjacency, to_neighbour_adjacency))
-		return false;
-
-	return true;
+	return rulesets_holder.TryMakeConsistentWith(rulesets_holder_at_adjacency, to_neighbour_adjacency);
 }
 
 bool UGenerationModelImpl::MakeAllNeighboursPossibilitiesConsistent(FGridArrayIndexCoordinate starting_index)
@@ -111,7 +98,7 @@ bool UGenerationModelImpl::ResetGridPossibilitiesInRegion(FGridArrayIndexCoordin
 	
 	for(int i = bottom_left_index_flattened; i < top_right_index_flattened; i++)
 	{
-		grid_[i].CandidateRuleSets = all_possible_rulesets_;
+		grid_[i].rulesets_ = all_possible_rulesets_;
 	}
 	
 	return true;

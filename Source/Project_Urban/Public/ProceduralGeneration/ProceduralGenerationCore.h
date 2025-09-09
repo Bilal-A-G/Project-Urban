@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "UGenerationModel.h"
+#include "Model/U_Generation_Model_Impl.h"
 #include "UObject/Object.h"
 #include "ProceduralGenerationCore.generated.h"
 
@@ -55,17 +55,13 @@ private:
 	UFUNCTION()
 	void OnOnlyColoursChanged();
 public:
-	UPROPERTY(BlueprintAssignable)
-	FOnGridUpdatedSignature OnGridUpdated;
-	UPROPERTY(BlueprintAssignable)
-	FOnGridUpdatedSignature OnOnlyColoursUpdated;
 private:
 	FVector gridDimensions;
 	TArray<UGenerationRuleset*> lastUsedAllPossibleRuleSets;
 	int generationTries;
 	int cellDimension;
 	UPROPERTY()
-	UGenerationModel* model;
+	UGenerationModelImpl* model;
 	UPROPERTY()
 	UCommandPlayer* commandPlayer;
 	UPROPERTY()

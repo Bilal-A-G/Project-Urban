@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "ProceduralGeneration/FModelCell.h"
+#include "..\F_Model_Cell.h"
 #include "ProceduralGeneration/CoordinateSpaces/F_Grid_Array_Index_Coordinate.h"
 #include "ProceduralGeneration/CoordinateSpaces/F_Grid_Local_Coordinate.h"
 #include "ProceduralGeneration/CoordinateSpaces/F_World_Coordinate.h"

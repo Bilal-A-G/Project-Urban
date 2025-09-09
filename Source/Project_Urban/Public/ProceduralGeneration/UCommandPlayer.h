@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "UCommandQueue.h"
+#include "Model/U_Generation_Model_Impl.h"
 #include "UObject/Object.h"
 #include "UCommandPlayer.generated.h"
 
-class UGenerationModel;
-class UCommandQueue;
 /**
  * This class acts as an interface between the core and the command queue
  * This handles higher level operations like playing, pausing, stepping, etc.
@@ -15,7 +15,7 @@ class PROJECT_URBAN_API UCommandPlayer : public UObject
 {
 	GENERATED_BODY()
 public:
-	void Init(UWorld* worldInstance, FVector gridDimensions, UGenerationModel* modelInstance);
+	void Init(UWorld* worldInstance, FVector gridDimensions, UGenerationModelImpl* modelInstance);
 	void Clear();
 	void Tick(float deltaTime);
 	void TogglePlay(){isPlaying = !isPlaying;}
@@ -33,7 +33,7 @@ private:
 	UPROPERTY()
 	UWorld* world;
 	UPROPERTY()
-	UGenerationModel* model;
+	UGenerationModelImpl* model;
 	FVector gridSize;
 	UPROPERTY()
 	UCommandQueue* commandQueue;

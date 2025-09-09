@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "FAbstractCommand.h"
+#include "F_Abstract_Command.h"
 
 //Command to collapse a tile at a specific index
 struct FCollapseTileCommand : FAbstractCommand
@@ -7,5 +7,5 @@ struct FCollapseTileCommand : FAbstractCommand
 public:
 	FCollapseTileCommand() = default;
 	virtual ~FCollapseTileCommand() override = default;
-	virtual bool Execute(UGenerationModel* model, UWorld* world, UCommandQueue* commandQueue) override;
+	virtual bool Execute(UGenerationModelImpl* model, UWorld* world, UCommandQueue* command_queue) override;
 };

@@ -1,7 +1,7 @@
 ﻿#include "ProceduralGeneration/UCommandPlayer.h"
 
 #include "ProceduralGeneration/UCommandQueue.h"
-#include "ProceduralGeneration/Commands/FCollapseBlockCommand.h"
+#include "..\..\Public\ProceduralGeneration\Commands\F_Collapse_Block_Command.h"
 
 void UCommandPlayer::Init(UWorld* worldInstance, FVector gridDimensions, UGenerationModel* modelInstance)
 {

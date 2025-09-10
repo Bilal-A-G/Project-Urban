@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "UGenerationRuleset.h"
+#include "U_Generation_Ruleset.h"
 #include "UObject/Object.h"
 #include "F_Generation_Ruleset_Holder.generated.h"
 

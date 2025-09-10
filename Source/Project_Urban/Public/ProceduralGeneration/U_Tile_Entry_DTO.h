@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Ruleset/U_Generation_Ruleset.h"
 #include "UObject/Object.h"
-#include "UTileEntryDTO.generated.h"
+#include "U_Tile_Entry_DTO.generated.h"
 
-class UGenerationRuleset;
 
 UCLASS(Blueprintable)
 //Basically just encapsulates a name and the ruleset
@@ -16,7 +16,7 @@ public:
 	virtual void PostInitProperties() override;
 public:
 	UPROPERTY(BlueprintReadWrite)
-	FString name;
+	FString name_;
 	UPROPERTY(BlueprintReadWrite)
-	UGenerationRuleset* tileRuleset;
+	UGenerationRuleset* tileRuleset_;
 };

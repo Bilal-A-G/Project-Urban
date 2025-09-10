@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "ProceduralGeneration/EAdjacency.h"
-#include "UGenerationRuleset.generated.h"
-
-class ULabel;
+#include "..\INC_Adjacency.h"
+#include "..\F_Adjacency_Wrapper.h"
+#include "..\U_Label.h"
+#include "U_Generation_Ruleset.generated.h"
 
 //This represents a state that model cells can be in + all the states it can be adjacent to
 //It is a class because it would be a waste of memory to copy everything in it everytime we create a new model cell
@@ -30,16 +30,16 @@ public:
 	//Each ruleset must have a unique label tied to it
 	bool operator==(const UGenerationRuleset& Other) const
 	{
-		return Current == Other.Current;
+		return current_ == Other.current_;
 	}
 private:
 	//Helper function, just tells us if this ruleset is inconsistent with the supplied ruleset at the adjacency
 	bool CheckConsistency(const UGenerationRuleset* other, EAdjacency adjacency) const;
 public:
 	UPROPERTY(BlueprintReadWrite)
-	ULabel* Current;
+	ULabel* current_;
 	UPROPERTY(BlueprintReadWrite)
-	TArray<FAdjacencyWrapper> Adjacencies;
+	TArray<FAdjacencyWrapper> adjacencies_;
 	UPROPERTY()
-	TArray<ULabel*> NullList = TArray<ULabel*>{nullptr};
+	TArray<ULabel*> null_list_ = TArray<ULabel*>{nullptr};
 };

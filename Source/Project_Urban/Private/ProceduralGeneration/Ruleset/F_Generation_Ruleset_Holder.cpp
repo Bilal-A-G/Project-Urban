@@ -72,7 +72,7 @@ bool FGenerationRulesetHolder::IsSubSetOf(FGenerationRulesetHolder& other)
 	{
 		UGenerationRuleset* current_ruleset = rulesets_[i];
 		bool elements_match = false;
-		for(int v = 0; v < other_rulesets.Num())
+		for(int v = 0; v < other_rulesets.Num(); v++)
 		{
 			UGenerationRuleset* current_other_ruleset = other_rulesets[v];
 			if(current_ruleset == current_other_ruleset)

@@ -11,15 +11,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="79032d72-74ae-4d2d-8556-14e18ed85257" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Project_Urban/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vsconfig" beforeDir="false" afterPath="$PROJECT_DIR$/.vsconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Config/DefaultEditor.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEditor.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/PCG/Roads/PCG_Road.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PCG/Roads/PCG_Road.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/2/JT/KDD5L1NEHV3N613J7251OL.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/2/JT/KDD5L1NEHV3N613J7251OL.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project_Urban.unrealvs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project_Urban.uproject" beforeDir="false" afterPath="$PROJECT_DIR$/Project_Urban.uproject" afterDir="false" />
-    </list>
+    <list default="true" id="79032d72-74ae-4d2d-8556-14e18ed85257" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -473,6 +465,7 @@
       <updated>1758243614590</updated>
       <workItem from="1758243622463" duration="1503000" />
       <workItem from="1758249020847" duration="562000" />
+      <workItem from="1758292974263" duration="622000" />
     </task>
     <servers />
   </component>

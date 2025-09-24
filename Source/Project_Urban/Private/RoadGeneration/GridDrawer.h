@@ -20,13 +20,15 @@ public:
 	void OnGridXCellCountUpdated(int new_x_cells)
 	{
 		road_grid_cells_.Empty();
+		UE_LOG(LogTemp, Warning, TEXT("X cell count updated"))
 		InitGrid(new_x_cells, grid_y_cells_, grid_cell_size_);
 	}
 	UFUNCTION(BlueprintCallable)
 	void OnGridYCellCountUpdated(int new_y_cells)
 	{
 		road_grid_cells_.Empty();
-		InitGrid(grid_y_cells_, new_y_cells, grid_cell_size_);
+		UE_LOG(LogTemp, Warning, TEXT("Y cell count updated"))
+		InitGrid(grid_x_cells_, new_y_cells, grid_cell_size_);
 	}
 	UFUNCTION(BlueprintCallable)
 	void OnGridCellSizeUpdated(int new_cell_size)

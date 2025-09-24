@@ -12,22 +12,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="79032d72-74ae-4d2d-8556-14e18ed85257" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/GridDrawer.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridDrawer.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/RoadGridCell.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Project_Urban/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Project_Urban/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/0/JI/BW42JCI2F5D8W9UUFHUK52.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/1/AZ/A7GPT109Y6ZTTJD4A7TXER.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/1/AZ/A7GPT109Y6ZTTJD4A7TXER.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/4/8S/4PBDXQFC4TCMY7F0NH265K.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/6/Y3/O8RIUPI4J7XAEFMXFKJ674.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/8/EG/8ZSR8PAUQIGRV6QKHQUGXG.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/9/FB/V2Y619IY0FKGHCCF1CPZXS.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/9/O8/ASGL0AUBNXYX9MNP9GG2O5.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/C/8Z/7IIOD4B35CWU8SAVNF3RGG.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/C/NV/LOXWXYVNA77CI3Q4N08S0O.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/D/LF/R5GQVOAGP4ISV1MFCULUMT.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalObjects__/ThirdPerson/Maps/ThirdPersonMap/6/WM/94WJV4GNM062URQL9PJ7TO.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project_Urban.uproject" beforeDir="false" afterPath="$PROJECT_DIR$/Project_Urban.uproject" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/GridDrawer.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/GridDrawer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridDrawer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridDrawer.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -486,6 +473,9 @@
       <workItem from="1758559128531" duration="1065000" />
       <workItem from="1758561914177" duration="5446000" />
       <workItem from="1758571995730" duration="275000" />
+      <workItem from="1758660089563" duration="885000" />
+      <workItem from="1758728007781" duration="1249000" />
+      <workItem from="1758730340897" duration="2531000" />
     </task>
     <servers />
   </component>

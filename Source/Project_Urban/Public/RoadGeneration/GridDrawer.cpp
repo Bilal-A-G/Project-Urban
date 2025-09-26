@@ -22,12 +22,9 @@ void UGridDrawer::DrawGrid()
 	persistent_line_batcher_->Flush();
 	for(int i = 0; i < road_grid_cells_.Num(); i++)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("i = %i"), i)
 		URoadGridCell& cell = road_grid_cells_[i];
 		int yIndex = i / grid_x_cells_;
 		int xIndex = i % grid_x_cells_;
-		UE_LOG(LogTemp, Warning, TEXT("X index = %i, Y index = %i"), xIndex, yIndex);
-		UE_LOG(LogTemp, Warning, TEXT("Cell colour = %s, Cell vector = %s"), *cell.colour.ToString(), *cell.vector.ToString());
 		FVector center = (FVector(-(grid_x_cells_ - 1)/2.0f, -(grid_y_cells_ - 1)/2.0f, 0) + FVector(xIndex, yIndex, 0)) * (grid_cell_size_ * 2);
 		FVector2d vector = cell.vector;
 		FVector size = FVector(grid_cell_size_, grid_cell_size_, grid_cell_size_);

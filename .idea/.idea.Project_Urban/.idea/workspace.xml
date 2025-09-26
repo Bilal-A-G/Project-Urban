@@ -13,7 +13,9 @@
   <component name="ChangeListManager">
     <list default="true" id="79032d72-74ae-4d2d-8556-14e18ed85257" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Project_Urban/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Project_Urban/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/GridDrawer.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/GridDrawer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/STP_Road_Properties.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/STP_Road_Properties.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/ST_Road_Generator.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/ST_Road_Generator.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/4/CM/1A9UW4GQ82GPPXSM1N6CNW.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap/4/CM/1A9UW4GQ82GPPXSM1N6CNW.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridDrawer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridDrawer.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -475,7 +477,11 @@
       <workItem from="1758571995730" duration="275000" />
       <workItem from="1758660089563" duration="885000" />
       <workItem from="1758728007781" duration="1249000" />
-      <workItem from="1758730340897" duration="2531000" />
+      <workItem from="1758730340897" duration="3381000" />
+      <workItem from="1758798284016" duration="1079000" />
+      <workItem from="1758850355529" duration="808000" />
+      <workItem from="1758902849194" duration="460000" />
+      <workItem from="1758903468931" duration="664000" />
     </task>
     <servers />
   </component>

@@ -13,10 +13,7 @@
   <component name="ChangeListManager">
     <list default="true" id="79032d72-74ae-4d2d-8556-14e18ed85257" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Project_Urban/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Project_Urban/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/STP_Road_Properties.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/STP_Road_Properties.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/ST_Road_Generator.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/ST_Road_Generator.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/UI/E_RoadConstraintPlacementMode.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/UI/E_RoadConstraintPlacementMode.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/UI/UW_RoadGeneratorPlacementOptions.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/UI/UW_RoadGeneratorPlacementOptions.uasset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -490,6 +487,9 @@
       <workItem from="1759369969455" duration="1365000" />
       <workItem from="1759493795813" duration="1814000" />
       <workItem from="1759538022005" duration="261000" />
+      <workItem from="1759538311176" duration="572000" />
+      <workItem from="1759598178106" duration="411000" />
+      <workItem from="1759598613694" duration="659000" />
     </task>
     <servers />
   </component>

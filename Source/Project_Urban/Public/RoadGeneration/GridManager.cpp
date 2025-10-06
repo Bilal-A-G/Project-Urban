@@ -1,4 +1,4 @@
-﻿#include "RoadGeneration/GridDrawer.h"
+﻿#include "..\..\Private\RoadGeneration\GridManager.h"
 
 #include "Components/LineBatchComponent.h"
 
@@ -39,4 +39,13 @@ void UGridDrawer::StopDrawing()
 	persistent_line_batcher_->Flush();
 }
 
+void UGridDrawer::AddNewManipulator(FString identifier, IGridManipulator* manipulator)
+{
+	//TODO: Implement
+}
 
+void UGridDrawer::UpdateTransform(FString identifier, FTransform new_transform)
+{
+	IGridManipulator* manipulator = grid_manipulators.Find(identifier);
+	manipulator->UpdateTransform(new_transform);
+}

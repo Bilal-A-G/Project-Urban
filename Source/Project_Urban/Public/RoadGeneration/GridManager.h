@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "GridManipulator.h"
 #include "RoadGeneration/RoadGridCell.h"
 #include "UObject/Object.h"
 #include "GridManager.generated.h"
@@ -16,6 +17,11 @@ public:
 	void InitGrid(int x_cell_count, int y_cell_count, int cell_size);
 	UFUNCTION(BlueprintCallable)
 	void StopDrawing();
+
+	UFUNCTION(BlueprintCallable)
+	void AddManipulator(FString name, TScriptInterface<IGridManipulator> manipulator, FTransform transform);
+	UFUNCTION(BlueprintCallable)
+	void UpdateManipulatorTransform(FString name, FTransform new_transform);
 	
 	UFUNCTION(BlueprintCallable)
 	void OnGridXCellCountUpdated(int new_x_cells)
@@ -39,6 +45,8 @@ public:
 private:
 	TArray<URoadGridCell> road_grid_cells_;
 	TObjectPtr<ULineBatchComponent> persistent_line_batcher_;
+	UPROPERTY()
+	TMap<FString, TScriptInterface<IGridManipulator>> manipulators_;
 	
 	int grid_x_cells_;
 	int grid_y_cells_;

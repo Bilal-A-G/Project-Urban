@@ -12,15 +12,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="79032d72-74ae-4d2d-8556-14e18ed85257" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/BoxManipulator.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/BoxManipulator.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridManipulator.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Project_Urban/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Project_Urban/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/BoxManipulator.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/GridManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/IGridManipulator.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/BoxManipulator.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/GridManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/ST_Road_Generator.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Tools/RoadGenerator/ST_Road_Generator.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/BoxManipulator.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/BoxManipulator.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/GridManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Private/RoadGeneration/GridManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/BoxManipulator.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/BoxManipulator.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridManipulator.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/GridManipulator.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/RoadGridCell.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Project_Urban/Public/RoadGeneration/RoadGridCell.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -500,6 +499,7 @@
       <workItem from="1759709095403" duration="4203000" />
       <workItem from="1759802146052" duration="33000" />
       <workItem from="1759888296157" duration="1924000" />
+      <workItem from="1759971266198" duration="3594000" />
     </task>
     <servers />
   </component>

@@ -10,6 +10,9 @@ class PROJECT_URBAN_API UBoxManipulator : public UObject, public IGridManipulato
 {
 	GENERATED_BODY()
 public:
-	virtual FVector CalculateMajorEigenVector(FVector point_location, FTransform manipulator_transform) override;
-	virtual FVector CalculateMinorEigenVector(FVector point_location, FTransform manipulator_transform) override;
+	virtual FVector CalculateMajorEigenVector(FVector point_location) override;
+	virtual FVector CalculateMinorEigenVector(FVector point_location) override;
+	virtual void UpdateTransform(FTransform new_transform) override;
+private:
+	FTransform manipulator_transform_;
 };

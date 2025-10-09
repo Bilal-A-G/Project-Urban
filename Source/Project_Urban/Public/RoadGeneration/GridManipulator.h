@@ -16,8 +16,9 @@ class PROJECT_URBAN_API IGridManipulator
 {
 	GENERATED_BODY()
 public:
-	virtual FVector CalculateMajorEigenVector(FVector point_location, FTransform manipulator_transform) = 0;
-	virtual FVector CalculateMinorEigenVector(FVector point_location, FTransform manipulator_transform) = 0;
+	virtual FVector CalculateMajorEigenVector(FVector point_location) = 0;
+	virtual FVector CalculateMinorEigenVector(FVector point_location) = 0;
+	virtual void UpdateTransform(FTransform new_transform) = 0;
 	//Calculate the tensor when we actually need it
 protected:
 	const float LAMBDA = 1;
